@@ -1,5 +1,5 @@
 import { DrawingRectState } from "./Constants";
-
+import { Rectangle,RectangleInput } from "./Rectangle";
 // const imageContainer: HTMLDivElement | null = document.querySelector('.image-container');
 const imageSelector : HTMLInputElement | null = document.querySelector('#imageSelector');
 const imageCanvas: HTMLCanvasElement | null = document.querySelector('.canvas');
@@ -11,11 +11,15 @@ const imageDimensions = {imageNaturalWidth:0,imageNaturalHeight:0}
 
 let canvasImageSource: HTMLImageElement | undefined = undefined;
 
-
-const updateFrames = ()=>{
-
-  requestAnimationFrame(updateFrames);
+type RectangleArrUnit = {
+  main:Rectangle,
+  temp: RectangleInput
 }
+
+let rectangleLimit:number = 1;
+
+const rectangleArr: RectangleArrUnit[] = []
+
 
 imageSelector?.addEventListener("change", (e: any) => {
 //   console.log("selected");
@@ -36,7 +40,7 @@ imageSelector?.addEventListener("change", (e: any) => {
         console.log("image-height::", image.naturalHeight);
 
         canvasImageSource = image; 
-
+ console.log('drag end')
         imageDimensions.imageNaturalWidth = image.naturalWidth
         imageDimensions.imageNaturalHeight = image.naturalHeight;
 
@@ -83,18 +87,29 @@ imageCanvas?.addEventListener('click',(e)=>{
 //     console.log(e.target)
 // })
 
+const rect = imageCanvas?.getBoundingClientRect();
+
+
 let drawingState: DrawingRectState = DrawingRectState.DrawingEnd;
 
-imageCanvas!.addEventListener('mousedown',()=>{
+imageCanvas!.addEventListener('mousedown',(e)=>{
     if(drawingState == DrawingRectState.DrawingEnd){
       drawingState = DrawingRectState.DrawingStart;
+      if(rectangleArr[rectangleLimit-1] == undefined){
+      const temp = {start_x:0,start_y:0,end_x:0,end_y:0};
+      rectangleArr[rectangleLimit-1]  = {temp,main: new Rectangle(temp)}
+      }
+      rectangleArr[rectangleLimit-1].temp.start_x = e.clientX - rect!.x;  
+      rectangleArr[rectangleLimit-1].temp.start_y = e.clientY - rect!.y;  
     }
     console.log('drag start')
 })
 
-imageCanvas!.addEventListener('mousemove',()=>{
+imageCanvas!.addEventListener('mousemove',(e)=>{
   if(drawingState == DrawingRectState.DrawingStart){
     console.log('drawing rectangle')
+      rectangleArr[rectangleLimit-1].temp.end_x = e.clientX - rect!.x;  
+      rectangleArr[rectangleLimit-1].temp.end_y = e.clientY - rect!.y;  
   }
 })
 
@@ -106,3 +121,32 @@ imageCanvas!.addEventListener("mouseup", () => {
 });
 
 
+const updateRectangleRenderer = () => {
+  ctx?.clearRect(
+    0,
+    0,
+    imageDimensions.imageNaturalWidth,
+    imageDimensions.imageNaturalHeight
+  );
+  if (canvasImageSource != undefined) {
+    ctx?.drawImage(
+      canvasImageSource,
+      0,
+      0,
+      imageDimensions.imageNaturalWidth,
+      imageDimensions.imageNaturalHeight
+    );
+    if (rectangleLimit != 0) {
+      for (const el of rectangleArr) {
+        el.main.updateRect(ctx!,el.temp);
+      }
+    }
+  }
+};
+
+const updateFrames = () => {
+  updateRectangleRenderer();
+  requestAnimationFrame(updateFrames);
+};
+
+updateFrames();

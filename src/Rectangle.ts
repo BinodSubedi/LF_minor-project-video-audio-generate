@@ -1,4 +1,4 @@
-type RectangleInput = {
+export type RectangleInput = {
   start_x: number;
   start_y: number;
   end_x: number;
@@ -6,7 +6,7 @@ type RectangleInput = {
   color?:string;
 };
 
-export default class Rectangle {
+export class Rectangle {
   start_x: number;
   start_y: number;
   end_x: number;
@@ -38,7 +38,8 @@ export default class Rectangle {
   createRect(ctx: CanvasRenderingContext2D) {
     ctx.fillStyle = this.color;
     const { min_x, max_x, min_y, max_y } = this.minMax_x_and_y();
-    ctx.fillRect(min_x, min_y, max_x - min_x, max_y - min_y);
+    // console.log('drawing nowwww')
+    ctx.strokeRect(min_x, min_y, max_x - min_x, max_y - min_y);
   }
 
   hasBeenUpdated(input: RectangleInput): boolean {
@@ -57,7 +58,6 @@ export default class Rectangle {
   }
 
   updateRect(ctx: CanvasRenderingContext2D, input:RectangleInput) {
-
     const { start_x, start_y, end_x, end_y } = input;
 
     this.start_x = start_x;
