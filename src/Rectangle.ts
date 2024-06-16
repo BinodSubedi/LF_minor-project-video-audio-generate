@@ -29,7 +29,7 @@ export class Rectangle {
   } {
     const min_x = Math.min(this.start_x, this.end_x);
     const max_x = Math.max(this.start_x, this.end_x);
-    const min_y = Math.min(this.end_y, this.end_y);
+    const min_y = Math.min(this.start_y, this.end_y);
     const max_y = Math.max(this.start_y, this.end_y);
 
     return { min_x, max_x, min_y, max_y };
