@@ -59,11 +59,12 @@ imageSelector?.addEventListener("change", (e: any) => {
           imageDimensions.imageNaturalHeight
         );
 
-        const imageData = ctx?.getImageData(50,50,10,10);
-        const data = imageData!.data;
-        console.log('image-data::',data);
-        console.log(`r: ${data[0]}\n g: ${data[1]}\n b:${data[2]}\n a: ${data[3]}`);
-        ctx?.putImageData(imageData!,273,212);
+        //getting image data
+        // const imageData = ctx?.getImageData(50,50,10,10);
+        // const data = imageData!.data;
+        // console.log('image-data::',data);
+        // console.log(`r: ${data[0]}\n g: ${data[1]}\n b:${data[2]}\n a: ${data[3]}`);
+        // ctx?.putImageData(imageData!,273,212);
       };
     }
   };
@@ -102,12 +103,12 @@ imageCanvas!.addEventListener('mousedown',(e)=>{
       rectangleArr[rectangleLimit-1].temp.start_x = e.clientX - rect!.x;  
       rectangleArr[rectangleLimit-1].temp.start_y = e.clientY - rect!.y;  
     }
-    console.log('drag start')
+    // console.log('drag start')
 })
 
 imageCanvas!.addEventListener('mousemove',(e)=>{
   if(drawingState == DrawingRectState.DrawingStart){
-    console.log('drawing rectangle')
+    // console.log('drawing rectangle')
       rectangleArr[rectangleLimit-1].temp.end_x = e.clientX - rect!.x;  
       rectangleArr[rectangleLimit-1].temp.end_y = e.clientY - rect!.y;  
   }
@@ -116,7 +117,7 @@ imageCanvas!.addEventListener('mousemove',(e)=>{
 imageCanvas!.addEventListener("mouseup", () => {
   if (drawingState == DrawingRectState.DrawingStart) {
     drawingState = DrawingRectState.DrawingEnd;
-    console.log("drag end");
+    // console.log("drag end");
   }
 });
 
