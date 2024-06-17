@@ -3,9 +3,10 @@ import { Rectangle,RectangleInput } from "./Rectangle";
 // const imageContainer: HTMLDivElement | null = document.querySelector('.image-container');
 const imageSelector : HTMLInputElement | null = document.querySelector('#imageSelector');
 const imageCanvas: HTMLCanvasElement | null = document.querySelector('.canvas');
+const startButton: HTMLButtonElement | null = document.querySelector('#start-button')
 
 
-const ctx = imageCanvas!.getContext('2d');
+const ctx = imageCanvas!.getContext('2d',{ willReadFrequently: true});
 
 const imageDimensions = {imageNaturalWidth:0,imageNaturalHeight:0}
 
@@ -83,6 +84,8 @@ imageCanvas?.addEventListener('click',(e)=>{
 
 })
 
+
+
 // imageElement.addEventListener('load',(e)=>{
 //     console.log('image loaded')
 //     console.log(e.target)
@@ -144,6 +147,13 @@ const updateRectangleRenderer = () => {
     }
   }
 };
+
+
+startButton?.addEventListener('click',()=>{
+  console.log('clicked')
+  // console.log(rectangleArr[0])
+  rectangleArr[0].main.detectBall(ctx!);
+})
 
 const updateFrames = () => {
   updateRectangleRenderer();
