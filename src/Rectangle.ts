@@ -1,3 +1,5 @@
+import { Ball } from "./Ball";
+
 type GradKey = {
   xPosition: number;
   yPosition: number;
@@ -23,6 +25,7 @@ export class Rectangle {
   end_x: number;
   end_y: number;
   color: string = "green";
+  ball:{maxX:number,minX:number,maxY:number,minY:number} = {maxX:0,maxY:0,minY:10000,minX:10000};
   private combinedGrad: Map<GradKey,GradUnit> | undefined;
 
   constructor(input: RectangleInput) {
@@ -52,6 +55,7 @@ export class Rectangle {
     const { min_x, max_x, min_y, max_y } = this.minMax_x_and_y();
     ctx.strokeRect(min_x, min_y, max_x - min_x, max_y - min_y);
 
+  
 
  const imageData = new ImageData(
       new Uint8ClampedArray([
@@ -67,11 +71,24 @@ export class Rectangle {
 
       if (val.combinedGrad >= 20) {
         // console.log('CobinedGrad::',val.combinedGrad);
+        
+        if(this.ball.maxX < key.xPosition){
+          this.ball.maxX = key.xPosition;
+        }else if(this.ball.maxY < key.yPosition){
+          this.ball.maxY = key.yPosition;
+        }else if(this.ball.minY > key.yPosition){
+          this.ball.minY = key.yPosition;
+        }else if(this.ball.minX > key.xPosition){
+          this.ball.minX = key.xPosition;
+        }
+
         ctx.putImageData(imageData, key.xPosition, key.yPosition);
       }
     });
 
   }
+
+  // console.log('ball:: minX, maxX, minY, maxY',this.ball.minX,this.ball.maxX,this.ball.minY,this.ball.maxY)
 
   }
 
@@ -101,8 +118,24 @@ export class Rectangle {
     this.createRect(ctx);
   }
 
-  detectBall(ctx: CanvasRenderingContext2D) {
-    console.log("running detectball");
+  getBall():Ball {
+
+    const {min_x,max_x,min_y,max_y} = this.minMax_x_and_y();
+    
+    const radius = Math.sqrt((this.ball.maxX - this.ball.minX)**2);
+
+    const center = [(this.ball.maxX + this.ball.minX)/2, (this.ball.maxY + this.ball.minY)/2];
+
+    console.log('radius,center,maxX,minX,maxY,minY,', radius,center,this.ball.maxX,this.ball.minX,this.ball.maxY,this.ball.minY);
+
+    const ball = new Ball({radius,max_x:this.ball.maxX,min_x:this.ball.minX,max_y:this.ball.maxY,min_y:this.ball.minY,center}, {rectMax_x:max_x, rectMax_y:max_y,rectMin_x:min_x,rectMin_y:min_y})
+    
+    return ball;
+
+  }
+
+  detectObject(ctx: CanvasRenderingContext2D) {
+    // console.log("running detectball");
     // Trying to create a perfect rectangle
     // As I am trying to use sobel operator for both
     // x and y axis, so both height and width needs to be

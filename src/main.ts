@@ -1,9 +1,11 @@
+import { Ball } from "./Ball";
 import { DrawingRectState } from "./Constants";
 import { Rectangle,RectangleInput } from "./Rectangle";
 // const imageContainer: HTMLDivElement | null = document.querySelector('.image-container');
 const imageSelector : HTMLInputElement | null = document.querySelector('#imageSelector');
 const imageCanvas: HTMLCanvasElement | null = document.querySelector('.canvas');
 const startButton: HTMLButtonElement | null = document.querySelector('#start-button')
+const fallBallButton: HTMLButtonElement | null = document.querySelector('#fall-ball-button');
 
 
 const ctx = imageCanvas!.getContext('2d',{ willReadFrequently: true});
@@ -124,36 +126,74 @@ imageCanvas!.addEventListener("mouseup", () => {
   }
 });
 
+const ballArr: Ball[] = []
+
+fallBallButton?.addEventListener('click',()=>{
+    const ball = rectangleArr[0].main.getBall();
+    ballArr.push(ball);
+    // ball.fall(ctx!,{yPositionLimit: imageDimensions.imageNaturalHeight});
+})
+
+
+let ballFallingBackRerenderer = 0;
 
 const updateRectangleRenderer = () => {
-  ctx?.clearRect(
-    0,
-    0,
-    imageDimensions.imageNaturalWidth,
-    imageDimensions.imageNaturalHeight
-  );
   if (canvasImageSource != undefined) {
-    ctx?.drawImage(
-      canvasImageSource,
-      0,
-      0,
-      imageDimensions.imageNaturalWidth,
-      imageDimensions.imageNaturalHeight
-    );
-    if (rectangleLimit != 0) {
-      for (const el of rectangleArr) {
-        el.main.updateRect(ctx!,el.temp);
+    if (ballArr.length != 0) {
+      if(ballFallingBackRerenderer == 0){
+      ctx?.clearRect(
+        0,
+        0,
+        imageDimensions.imageNaturalWidth,
+        imageDimensions.imageNaturalHeight
+      );
+
+      ctx?.drawImage(
+        canvasImageSource,
+        0,
+        0,
+        imageDimensions.imageNaturalWidth,
+        imageDimensions.imageNaturalHeight
+      );
+
+
+      ballFallingBackRerenderer = 1;
+
+      }
+      for (const ball of ballArr) {
+        ball.fall(ctx!, { yPositionLimit: imageDimensions.imageNaturalHeight });
+      }
+
+    } else {
+      ctx?.clearRect(
+        0,
+        0,
+        imageDimensions.imageNaturalWidth,
+        imageDimensions.imageNaturalHeight
+      );
+
+      ctx?.drawImage(
+        canvasImageSource,
+        0,
+        0,
+        imageDimensions.imageNaturalWidth,
+        imageDimensions.imageNaturalHeight
+      );
+
+      if (rectangleLimit != 0) {
+        for (const el of rectangleArr) {
+          el.main.updateRect(ctx!, el.temp);
+        }
       }
     }
   }
 };
 
-
-startButton?.addEventListener('click',()=>{
-  console.log('clicked')
+startButton?.addEventListener("click", () => {
+  console.log("clicked");
   // console.log(rectangleArr[0])
-  rectangleArr[0].main.detectBall(ctx!);
-})
+  rectangleArr[0].main.detectObject(ctx!);
+});
 
 const updateFrames = () => {
   updateRectangleRenderer();
