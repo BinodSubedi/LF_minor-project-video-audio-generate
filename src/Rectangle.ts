@@ -1,6 +1,9 @@
 import { Ball } from "./Ball";
+import { Hand } from "./Hand";
+import { Head } from "./Head";
+import { HeadSectionWise } from "./Head";
 
-type GradKey = {
+export type GradKey = {
   xPosition: number;
   yPosition: number;
 };
@@ -25,8 +28,13 @@ export class Rectangle {
   end_x: number;
   end_y: number;
   color: string = "green";
-  ball:{maxX:number,minX:number,maxY:number,minY:number} = {maxX:0,maxY:0,minY:10000,minX:10000};
-  private combinedGrad: Map<GradKey,GradUnit> | undefined;
+  ball: { maxX: number; minX: number; maxY: number; minY: number } = {
+    maxX: 0,
+    maxY: 0,
+    minY: 10000,
+    minX: 10000,
+  };
+  private combinedGrad: Map<GradKey, GradUnit> | undefined;
 
   constructor(input: RectangleInput) {
     this.start_x = input.start_x;
@@ -55,41 +63,41 @@ export class Rectangle {
     const { min_x, max_x, min_y, max_y } = this.minMax_x_and_y();
     ctx.strokeRect(min_x, min_y, max_x - min_x, max_y - min_y);
 
-  
-
- const imageData = new ImageData(
-      new Uint8ClampedArray([
-        0, 255, 0, 255
-      ]),
+    const imageData = new ImageData(
+      new Uint8ClampedArray([0, 255, 0, 255]),
       1,
       1
     );
-    if(this.combinedGrad != undefined){
-    this.combinedGrad.forEach((val, key) => {
-      // console.log('Key::',key);
-      // console.log('value::',val)
+    if (this.combinedGrad != undefined) {
+      this.combinedGrad.forEach((val, key) => {
+        // console.log('Key::',key);
+        // console.log('value::',val)
 
-      if (val.combinedGrad >= 20) {
-        // console.log('CobinedGrad::',val.combinedGrad);
-        
-        if(this.ball.maxX < key.xPosition){
-          this.ball.maxX = key.xPosition;
-        }else if(this.ball.maxY < key.yPosition){
-          this.ball.maxY = key.yPosition;
-        }else if(this.ball.minY > key.yPosition){
-          this.ball.minY = key.yPosition;
-        }else if(this.ball.minX > key.xPosition){
-          this.ball.minX = key.xPosition;
+        if (
+          // val.combinedGrad >= 200
+          // ||
+          val.combinedGrad >= 40
+        ) {
+          // console.log('CobinedGrad::',val.combinedGrad);
+
+          // console.log(Math.tan(val.yGrad/val.xGrad));
+
+          if (this.ball.maxX < key.xPosition) {
+            this.ball.maxX = key.xPosition;
+          } else if (this.ball.maxY < key.yPosition) {
+            this.ball.maxY = key.yPosition;
+          } else if (this.ball.minY > key.yPosition) {
+            this.ball.minY = key.yPosition;
+          } else if (this.ball.minX > key.xPosition) {
+            this.ball.minX = key.xPosition;
+          }
+
+          ctx.putImageData(imageData, key.xPosition, key.yPosition);
         }
+      });
+    }
 
-        ctx.putImageData(imageData, key.xPosition, key.yPosition);
-      }
-    });
-
-  }
-
-  // console.log('ball:: minX, maxX, minY, maxY',this.ball.minX,this.ball.maxX,this.ball.minY,this.ball.maxY)
-
+    // console.log('ball:: minX, maxX, minY, maxY',this.ball.minX,this.ball.maxX,this.ball.minY,this.ball.maxY)
   }
 
   hasBeenUpdated(input: RectangleInput): boolean {
@@ -118,19 +126,144 @@ export class Rectangle {
     this.createRect(ctx);
   }
 
-  getBall():Ball {
+  getBall(): Ball {
+    const { min_x, max_x, min_y, max_y } = this.minMax_x_and_y();
 
-    const {min_x,max_x,min_y,max_y} = this.minMax_x_and_y();
-    
-    const radius = Math.sqrt((this.ball.maxX - this.ball.minX)**2);
+    const center = [
+      (this.ball.maxX + this.ball.minX) / 2,
+      (this.ball.maxY + this.ball.minY) / 2,
+    ];
 
-    const center = [(this.ball.maxX + this.ball.minX)/2, (this.ball.maxY + this.ball.minY)/2];
+    const radius = center[1] - this.ball.minY;
 
-    console.log('radius,center,maxX,minX,maxY,minY,', radius,center,this.ball.maxX,this.ball.minX,this.ball.maxY,this.ball.minY);
+    console.log(
+      "radius,center,maxX,minX,maxY,minY, rect.maxX,rect.minX,",
+      radius,
+      center,
+      this.ball.maxX,
+      this.ball.minX,
+      this.ball.maxY,
+      this.ball.minY,
+      max_x,
+      min_x
+    );
 
-    const ball = new Ball({radius,max_x:this.ball.maxX,min_x:this.ball.minX,max_y:this.ball.maxY,min_y:this.ball.minY,center}, {rectMax_x:max_x, rectMax_y:max_y,rectMin_x:min_x,rectMin_y:min_y})
-    
+    const ball = new Ball(
+      {
+        radius,
+        max_x: this.ball.maxX,
+        min_x: this.ball.minX,
+        max_y: this.ball.maxY,
+        min_y: this.ball.minY,
+        center,
+      },
+      { rectMax_x: max_x, rectMax_y: max_y, rectMin_x: min_x, rectMin_y: min_y }
+    );
+
     return ball;
+  }
+
+  //implementGaussianBlur(ctx: CanvasRenderingContext2D){
+  // }
+
+  // getHand():Hand{
+  // }
+
+  getHead():Head | undefined{
+    //segmenting head from x slices vertically removing any out-liers
+    
+    if(this.combinedGrad == null){
+      return;
+    }
+
+    //1000 is just a non-possible value in this situation so, the comparison would be easier
+    const head = new Head({x_start:1000,x_end:0,y_start:1000,y_end:0})
+
+
+    let xMean = 0;
+    let yMean = 0;
+    let len = 0;
+
+
+        
+    for(const key of this.combinedGrad.keys()){
+
+      if(key.xPosition > head.x_end){
+        head.x_end = key.xPosition;
+      }else if(key.xPosition < head.x_start){
+        head.x_start = key.xPosition;
+      }else if(key.yPosition > head.y_end){
+        head.y_end = key.yPosition;
+      }else if(key.yPosition < head.y_start){
+        head.y_start = key.yPosition;
+      }
+
+      xMean += key.xPosition;
+      yMean +=key.yPosition;
+      len++;
+
+    }
+
+    xMean = xMean / len;
+    yMean = yMean / len;
+
+    //sectioning the total head into 10 small subsets, so that the calculation could be made more precise
+    //by using section specific max x and min x
+
+    const sectionRange = (head.y_end - head.y_start)
+
+    const sectionUnit = Math.floor(sectionRange/10);
+
+    const sectionMapper: Map<number, HeadSectionWise> = new Map();
+
+    for (const key of this.combinedGrad.keys()) {
+      const yPos = key.yPosition;
+      const xPos = key.xPosition;
+
+      for (let i = 1; i < 11; i++) {
+        if (yPos < head.y_start + sectionUnit * i) {
+
+            const startEnd = {yStart:head.y_start + sectionUnit * i - sectionUnit, yEnd:head.y_start + sectionUnit * i}
+
+          if (sectionMapper.get(i) == undefined) {
+            sectionMapper.set(i, {
+              min: { xPosition: 1000 },
+              max: { xPosition: 0 },
+              ...startEnd
+            });
+          }
+
+          const alreadyMinX = sectionMapper.get(i)!.min.xPosition;
+          const alradyMaxX = sectionMapper.get(i)!.max.xPosition;
+
+          if (xPos < alreadyMinX) {
+            sectionMapper.set(i, {
+              min: { xPosition: xPos },
+              max: { xPosition: alradyMaxX },
+              ...startEnd
+            });
+          } else if (xPos > alradyMaxX) {
+            sectionMapper.set(i, {
+              min: { xPosition: alreadyMinX },
+              max: { xPosition: xPos },
+              ...startEnd
+            });
+          }
+        }
+      }
+    }
+
+    // console.log(sectionMapper);
+
+
+    head.mappedSectionedHead = sectionMapper;
+    head.xMean = xMean;
+    head.yMean = yMean;
+
+
+    // console.log('xMean, yMean, xMin, xMax, yMin,yMax',xMean, yMean, head.x_start,head.x_end,head.y_start,head.y_end);
+
+    return head;
 
   }
 
@@ -263,10 +396,13 @@ export class Rectangle {
 
         const combinedGrad = Math.sqrt(xGrad ** 2 + yGrad ** 2);
         // console.log(combinedGrad)
+
+        if(combinedGrad >= 35){
         gradLedger.set(
           { xPosition: i + 1, yPosition: j + 1 },
           { xGrad, yGrad, combinedGrad }
         );
+      }
 
         // console.log('xGrad::', xGrad);
         // console.log('yGrad::', yGrad);
@@ -281,6 +417,9 @@ export class Rectangle {
     // console.log('gradients::',gradLedger)
     this.combinedGrad = gradLedger;
 
-   
+
+    //just for head testing
+
+    this.getHead()
   }
 }
