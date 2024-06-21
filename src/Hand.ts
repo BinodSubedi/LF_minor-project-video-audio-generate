@@ -1,3 +1,15 @@
+type SectionYPos = {
+    yPosition: number
+}
+
+export type HandSectionWise = {
+  min: SectionYPos;
+  max: SectionYPos;
+  xStart:number;
+  xEnd:number;
+};
+
+
 export type HandInput = {
     x_start:number;
     x_end:number;
@@ -11,6 +23,9 @@ export class Hand{
     x_end:number;
     y_start:number;
     y_end:number;
+    xMean?:number;
+    yMean?:number;
+    sectionedMappedHand:Map<number,HandSectionWise> | undefined;
 
 
     constructor(input:HandInput){

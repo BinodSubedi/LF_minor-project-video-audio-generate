@@ -1,5 +1,6 @@
-import { Ball, BallFallEnd } from "./Ball";
+import { Ball } from "./Ball";
 import { DrawingRectState } from "./Constants";
+import { ImageDraw } from "./Image";
 import { Rectangle, RectangleInput } from "./Rectangle";
 // const imageContainer: HTMLDivElement | null = document.querySelector('.image-container');
 const imageSelector: HTMLInputElement | null =
@@ -12,9 +13,11 @@ const fallBallButton: HTMLButtonElement | null =
 
 const animationStyleElement: HTMLSelectElement | null = document.querySelector('#animation-style');
 
+const resizeButton: HTMLButtonElement | null = document.querySelector('#resize-button')
+
 const ctx = imageCanvas!.getContext("2d", { willReadFrequently: true });
 
-const imageDimensions = { imageNaturalWidth: 0, imageNaturalHeight: 0 };
+const imageDimensions:{imageNaturalWidth:number, imageNaturalHeight:number} = { imageNaturalWidth: 0, imageNaturalHeight: 0 };
 
 let canvasImageSource: HTMLImageElement | undefined = undefined;
 
@@ -253,6 +256,13 @@ startButton?.addEventListener("click", () => {
   rectangleArr[i].main.detectObject(ctx!);
   }
 });
+
+
+resizeButton?.addEventListener('click',()=>{
+  console.log('hello there')
+  new ImageDraw(imageDimensions).averageResize(ctx!);
+})
+
 
 const updateFrames = () => {
   updateRectangleRenderer();

@@ -36,4 +36,8 @@ export class Head{
 
     }
 
+    bobHead(){
+
+    }
+
 }

@@ -1,5 +1,5 @@
 import { Ball } from "./Ball";
-import { Hand } from "./Hand";
+import { Hand, HandSectionWise } from "./Hand";
 import { Head } from "./Head";
 import { HeadSectionWise } from "./Head";
 
@@ -166,8 +166,104 @@ export class Rectangle {
   //implementGaussianBlur(ctx: CanvasRenderingContext2D){
   // }
 
-  // getHand():Hand{
-  // }
+  getHand():Hand | undefined{
+
+    //segmenting hand from y axis creating rectangle like slices to minimize the
+    //inclusion of pixel other than of hand
+
+    if(this.combinedGrad == null){
+      return;
+    }
+
+
+    const hand = new Hand({x_start:1000,x_end:0,y_start:1000,y_end:0})
+
+
+    let xMean = 0;
+    let yMean = 0;
+    let len = 0;
+
+
+        
+    for(const key of this.combinedGrad.keys()){
+
+      if(key.xPosition > hand.x_end){
+        hand.x_end = key.xPosition;
+      }else if(key.xPosition < hand.x_start){
+        hand.x_start = key.xPosition;
+      }else if(key.yPosition > hand.y_end){
+        hand.y_end = key.yPosition;
+      }else if(key.yPosition < hand.y_start){
+        hand.y_start = key.yPosition;
+      }
+
+      xMean += key.xPosition;
+      yMean +=key.yPosition;
+      len++;
+
+    }
+
+    xMean = xMean / len;
+    yMean = yMean / len;
+
+
+    //sectioning the total head into 10 small subsets, so that the calculation could be made more precise
+    //by using section specific max y and min y
+
+    const sectionRange = (hand.x_end - hand.x_start)
+
+    const sectionUnit = Math.floor(sectionRange/10);
+
+    const sectionMapper: Map<number, HandSectionWise> = new Map();
+
+    for (const key of this.combinedGrad.keys()) {
+      const yPos = key.yPosition;
+      const xPos = key.xPosition;
+
+      for (let i = 1; i < 11; i++) {
+        if (xPos < hand.x_start + sectionUnit * i) {
+
+            const startEnd = {xStart:hand.x_start + sectionUnit * i - sectionUnit, xEnd:hand.x_start + sectionUnit * i}
+
+          if (sectionMapper.get(i) == undefined) {
+            sectionMapper.set(i, {
+              min: { yPosition: 1000 },
+              max: { yPosition: 0 },
+              ...startEnd
+            });
+          }
+
+          const alreadyMinY = sectionMapper.get(i)!.min.yPosition;
+          const alradyMaxY = sectionMapper.get(i)!.max.yPosition;
+
+          if (yPos < alreadyMinY) {
+            sectionMapper.set(i, {
+              min: { yPosition: yPos },
+              max: { yPosition: alradyMaxY },
+              ...startEnd
+            });
+          } else if (yPos > alradyMaxY) {
+            sectionMapper.set(i, {
+              min: { yPosition: alreadyMinY },
+              max: { yPosition: yPos },
+              ...startEnd
+            });
+          }
+        }
+      }
+    }
+
+
+    console.log(sectionMapper);
+
+    hand.sectionedMappedHand = sectionMapper;
+    hand.xMean = xMean;
+    hand.yMean = yMean;
+
+    return hand;
+
+
+  }
 
   getHead():Head | undefined{
     //segmenting head from x slices vertically removing any out-liers
@@ -420,6 +516,7 @@ export class Rectangle {
 
     //just for head testing
 
-    this.getHead()
+    // this.getHead()
+    this.getHand();
   }
 }
