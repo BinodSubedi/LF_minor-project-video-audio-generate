@@ -260,13 +260,13 @@ startButton?.addEventListener("click", () => {
 
 resizeButton?.addEventListener('click',()=>{
   console.log('hello there')
-  new ImageDraw(imageDimensions).averageResize(ctx!);
+  new ImageDraw(imageDimensions).averageResize(ctx!,imageCanvas!);
 })
 
 
-const updateFrames = () => {
-  updateRectangleRenderer();
-  requestAnimationFrame(updateFrames);
-};
+// const updateFrames = () => {
+//   updateRectangleRenderer();
+//   requestAnimationFrame(updateFrames);
+// };
 
-updateFrames();
+// updateFrames();

@@ -18,16 +18,19 @@ export class ImageDraw {
   }
 
   // This is a 3*3 grid array matrix comparison, where all pixel values are averaged, and these grids are non-overlapping
-  averageResize(ctx: CanvasRenderingContext2D) {
+  averageResize(ctx: CanvasRenderingContext2D,canvas:HTMLCanvasElement) {
 
+    let height = 0;
     console.log('height and width::',this.imageNaturalHeight,this.imageNaturalWidth)
-    for (let i = 0; i <= this.imageNaturalWidth; i += 3) {
-      for (let j = 0; j <= this.imageNaturalHeight; j += 3) {
+    for (let h = 0; h < this.imageNaturalHeight; h += 3) {
 
-        console.log('i,j::',i,j)
-        const firstRowData = ctx.getImageData(i, j, 3, 1).data;
-        const secondRowData = ctx.getImageData(i + 1, j, 3, 1).data;
-        const lastRowData = ctx.getImageData(i + 2, j, 3, 1).data;
+        height++;
+      for (let w = 0; w < this.imageNaturalWidth; w += 3) {
+
+        // console.log('i,j::',i,j)
+        const firstRowData = ctx.getImageData(w, h, 3, 1).data;
+        const secondRowData = ctx.getImageData(w, h+1, 3, 1).data;
+        const lastRowData = ctx.getImageData(w, h+2, 3, 1).data;
 
         //Now average values of [r,g,b,a] and we could finally average too, by again dividing every element by 3
 
@@ -118,6 +121,25 @@ export class ImageDraw {
     }
 
     console.log(this.imageRBGADataArr);
+
+
+    console.log('width, height::',Math.floor(this.imageNaturalWidth/3),
+      Math.floor(this.imageNaturalHeight/3)
+)
+
+    const imageData = new ImageData(
+      new Uint8ClampedArray(this.imageRBGADataArr!),
+      Math.floor(this.imageNaturalWidth/3),
+      Math.floor(this.imageNaturalHeight/3)
+    );
+
+
+    canvas.height = Math.floor(this.imageNaturalHeight/3);
+    canvas.width = Math.floor(this.imageNaturalWidth/3);
+
+
+    ctx.clearRect(0,0,this.imageNaturalWidth +20,this.imageNaturalHeight);
+    ctx.putImageData(imageData,0,0);
 
   }
 }
