@@ -15,6 +15,8 @@ const animationStyleElement: HTMLSelectElement | null = document.querySelector('
 
 const resizeButton: HTMLButtonElement | null = document.querySelector('#resize-button')
 
+const greenFilterButton:HTMLButtonElement | null = document.querySelector('#greenFilter-button')
+
 const ctx = imageCanvas!.getContext("2d", { willReadFrequently: true });
 
 const imageDimensions:{imageNaturalWidth:number, imageNaturalHeight:number} = { imageNaturalWidth: 0, imageNaturalHeight: 0 };
@@ -259,10 +261,14 @@ startButton?.addEventListener("click", () => {
 
 
 resizeButton?.addEventListener('click',()=>{
-  console.log('hello there')
   new ImageDraw(imageDimensions).averageResize(ctx!,imageCanvas!);
 })
 
+
+greenFilterButton?.addEventListener('click',()=>{
+  console.log('checking')
+  new ImageDraw(imageDimensions).greenFilter(ctx!);
+})
 
 // const updateFrames = () => {
 //   updateRectangleRenderer();

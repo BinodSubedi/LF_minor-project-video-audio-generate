@@ -142,4 +142,22 @@ export class ImageDraw {
     ctx.putImageData(imageData,0,0);
 
   }
+
+  greenFilter(ctx:CanvasRenderingContext2D){
+
+    for(let w=0; w < this.imageNaturalWidth; w++){
+        for(let h=0; h< this.imageNaturalHeight; h++){
+
+            const imageDataOriginal = ctx.getImageData(w,h, 1,1).data;
+            
+            const manipulatedImageData = [imageDataOriginal[0]*0.299, imageDataOriginal[1]*0.587,imageDataOriginal[2]*0.114,imageDataOriginal[3]];
+
+            const imageData = new ImageData(new Uint8ClampedArray(manipulatedImageData), 1,1);
+
+            ctx.putImageData(imageData, w,h);
+
+        }
+    }
+
+  }
 }
