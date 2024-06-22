@@ -2,6 +2,7 @@ import { Ball } from "./Ball";
 import { DrawingRectState } from "./Constants";
 import { ImageDraw } from "./Image";
 import { Rectangle, RectangleInput } from "./Rectangle";
+import { Hand } from "./Hand";
 // const imageContainer: HTMLDivElement | null = document.querySelector('.image-container');
 const imageSelector: HTMLInputElement | null =
   document.querySelector("#imageSelector");
@@ -196,6 +197,8 @@ fallBallButton?.addEventListener("click", () => {
 
 let ballFallingBackRerenderer = 0;
 
+let handStatePreserver: Hand | undefined = undefined 
+
 // let ballFallPoint:BallFallEnd = {yPositionLimit: imageDimensions.imageNaturalHeight,met:false};
 
 const updateRectangleRenderer = () => {
@@ -224,6 +227,11 @@ const updateRectangleRenderer = () => {
         ballArr[0].fall(ctx!, { yPositionLimit: imageDimensions.imageNaturalHeight });
         }else if(animationSelected == AnimationSelection.BallStriking){
           ballArr[0].strikeBall(ctx!,ballArr[1],{yPositionLimit:imageDimensions.imageNaturalHeight});
+        }else if(animationSelected == AnimationSelection.MovingHand){
+          if(handStatePreserver == undefined){
+          handStatePreserver = rectangleArr[0].main.getHand();
+          }
+          handStatePreserver?.moveHand(ctx!);
         }
       // }
     } else {
@@ -270,9 +278,11 @@ greenFilterButton?.addEventListener('click',()=>{
   new ImageDraw(imageDimensions).greenFilter(ctx!);
 })
 
-// const updateFrames = () => {
-//   updateRectangleRenderer();
-//   requestAnimationFrame(updateFrames);
-// };
 
-// updateFrames();
+
+const updateFrames = () => {
+  updateRectangleRenderer();
+  requestAnimationFrame(updateFrames);
+};
+
+updateFrames();

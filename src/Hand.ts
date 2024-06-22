@@ -38,4 +38,50 @@ export class Hand{
 
     }
 
+    moveHand(ctx:CanvasRenderingContext2D){
+
+        //last to first as we will move hand in the clock-wise direction first
+        // and we don not want any pixel override problem
+
+        for(let i=10; i> 0; i--){
+          const focusedSection = this.sectionedMappedHand?.get(i);
+
+          //Again even in the small sections we are going from prefered edge direction[Now being closest to clock-wise direction]
+
+          for (let w = focusedSection!.xEnd; w > focusedSection!.xStart; w--) {
+            // Could have gone from any direction but just for the sake of consistency
+            // heigh also traverse from top to bottom
+
+            for (
+              let h = focusedSection!.max.yPosition;
+              h > focusedSection!.min.yPosition;
+              h--
+            ) {
+              const currentImageData = ctx.getImageData(w, h, 1, 1);
+              const replacingImageData = ctx.getImageData(
+                this.sectionedMappedHand!.get(1)!.xStart,
+                this.sectionedMappedHand!.get(1)!.min.yPosition - 5,
+                1,
+                1
+              );
+
+              // we need to move the pixel in both x and y direction as to make it look like waving so,
+              // might need to check in later for improvements
+              ctx.putImageData(currentImageData, w + 10, h);
+              ctx.putImageData(replacingImageData,w,h)
+            }
+          }
+
+          const { min, max, xStart, xEnd } = focusedSection!;
+
+          this.sectionedMappedHand!.set(i, {
+            min: {yPosition: min.yPosition},
+            max:{yPosition: max.yPosition},
+            xStart: xStart + 10,
+            xEnd: xEnd + 10,
+          });
+        }
+
+    }
+
 }

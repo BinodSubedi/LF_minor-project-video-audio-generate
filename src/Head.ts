@@ -36,7 +36,7 @@ export class Head{
 
     }
 
-    bobHead(){
+    bobHead(ctx:CanvasRenderingContext2D){
 
     }
 

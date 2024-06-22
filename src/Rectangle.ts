@@ -517,6 +517,6 @@ export class Rectangle {
     //just for head testing
 
     // this.getHead()
-    this.getHand();
+    // this.getHand();
   }
 }
