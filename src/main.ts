@@ -18,6 +18,8 @@ const resizeButton: HTMLButtonElement | null = document.querySelector('#resize-b
 
 const greenFilterButton:HTMLButtonElement | null = document.querySelector('#greenFilter-button')
 
+const globalOptionSelector:HTMLSelectElement | null = document.querySelector('#options-selector');
+
 const ctx = imageCanvas!.getContext("2d", { willReadFrequently: true });
 
 const imageDimensions:{imageNaturalWidth:number, imageNaturalHeight:number} = { imageNaturalWidth: 0, imageNaturalHeight: 0 };
@@ -281,7 +283,9 @@ greenFilterButton?.addEventListener('click',()=>{
 
 
 const updateFrames = () => {
+  if(globalOptionSelector?.value == 'animate'){
   updateRectangleRenderer();
+  }
   requestAnimationFrame(updateFrames);
 };
 
