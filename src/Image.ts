@@ -168,12 +168,12 @@ export class ImageDraw {
 
         let itterativeIndex = 0;
 
-        for (let iter = 0; iter <= 8; iter += 4) {
+        for (let iter = 0; iter < 8; iter += 4) {
           // const pixelValue =
           //   (firstRow[iter + 3] / 255) *
           //   ((firstRow[iter] + firstRow[iter + 1] + firstRow[iter + 2]) / 3);
 
-          if (iter > 4) {
+          if (iter > 3) {
             itterativeIndex = 1;
           }
 
@@ -187,17 +187,18 @@ export class ImageDraw {
           rowWiseRGBA[itterativeIndex][3] = firstRowData[iter + 3];
         }
 
+        // console.log(rowWiseRGBA, itterativeIndex)
         //for second-row
 
         itterativeIndex = 2
 
-        for (let iter = 0; iter <= 8; iter += 4) {
+        for (let iter = 0; iter < 8; iter += 4) {
           // const pixelValue =
           //   (secondRow[iter + 3] / 255) *
           //   ((secondRow[iter] + secondRow[iter + 1] + secondRow[iter + 2]) /
           //     3);
 
-          if (iter > 4) {
+          if (iter > 3) {
             itterativeIndex = 3;
           }
 
@@ -211,12 +212,15 @@ export class ImageDraw {
           rowWiseRGBA[itterativeIndex][3] = secondRowData[iter + 3];
         }
 
+
+        // console.log(rowWiseRGBA)
         // Nested Array for new data
 
         // Here data are stored serially in (R G B A) format rowWise
         let rowWiseRGBANew: number [][] = [[],[],[],[]]
 
-        const incrementalMultiplyer =  1 / (times + 1)
+        // const incrementalMultiplyer =  1 / (times + 1)
+        const incrementalMultiplyer = 0.4
 
 
         //Now itterating over the rowWiseRGBA with respect to finally expected grid size
@@ -295,6 +299,8 @@ export class ImageDraw {
               
             }
 
+            // console.log("Row-Wise-RGBA::",rowWiseRGBA)
+
           
             
         for(let iter = 1; iter < (1+times); iter++){
@@ -336,6 +342,8 @@ export class ImageDraw {
           }
 
           rowWiseRGBANew[iter].push(...rowTotalApendee)
+
+          // console.log(rowTotalApendee)
 
         }
 
@@ -386,9 +394,10 @@ export class ImageDraw {
 
     const imageData = new ImageData(new Uint8ClampedArray([...flatRGBAData]), this.imageRGBDataArrBicubic![0].length / 4, height)
 
-    canvas.height = this.imageNaturalHeight * times;
-    canvas.width = this.imageNaturalWidth * times;
+    canvas.height = height;
+    canvas.width = this.imageRGBDataArrBicubic![0].length / 4;
     ctx.putImageData(imageData,0,0);
+    console.log(flatRGBAData)
 
 
   }
