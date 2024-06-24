@@ -219,8 +219,8 @@ export class ImageDraw {
         // Here data are stored serially in (R G B A) format rowWise
         let rowWiseRGBANew: number [][] = [[],[],[],[]]
 
-        // const incrementalMultiplyer =  1 / (times + 1)
-        const incrementalMultiplyer = 0.4
+        const incrementalMultiplyer =  1 / (times + 1)
+        // const incrementalMultiplyer = 0.4
 
 
         //Now itterating over the rowWiseRGBA with respect to finally expected grid size
