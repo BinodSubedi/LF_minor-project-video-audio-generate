@@ -20,67 +20,92 @@ export class ImageDraw {
   }
 
   // This is a 3*3 grid array matrix comparison, where all pixel values are averaged, and these grids are non-overlapping
-  averageResize(ctx: CanvasRenderingContext2D,canvas:HTMLCanvasElement) {
+  averageResize(ctx: CanvasRenderingContext2D,canvas:HTMLCanvasElement,times:number = 3) {
 
     // console.log('height and width::',this.imageNaturalHeight,this.imageNaturalWidth)
-    for (let h = 0; h < this.imageNaturalHeight; h += 3) {
+    for (let h = 0; h < this.imageNaturalHeight; h += times) {
 
-      for (let w = 0; w < this.imageNaturalWidth; w += 3) {
+      for (let w = 0; w < this.imageNaturalWidth; w += times) {
 
         // console.log('i,j::',i,j)
-        const firstRowData = ctx.getImageData(w, h, 3, 1).data;
-        const secondRowData = ctx.getImageData(w, h+1, 3, 1).data;
-        const lastRowData = ctx.getImageData(w, h+2, 3, 1).data;
+
+        let rowWiseRGBAArr = [];
+
+        for (let i = 0; i < times; i++) {
+          rowWiseRGBAArr[i] = ctx.getImageData(w, h, times, 1).data;
+        }
+
+        // const firstRowData = ctx.getImageData(w, h, times, 1).data;
+        // const secondRowData = ctx.getImageData(w, h+1, 3, 1).data;
+        // const lastRowData = ctx.getImageData(w, h+2, 3, 1).data;
 
         //Now average values of [r,g,b,a] and we could finally average too, by again dividing every element by 3
 
         const rowWiseRGBA: number[][] = [];
 
+        for (let looper = 0; looper < times; looper++) {
+
+          for (let iter = 0; iter < 12; iter += 4) {
+            // const pixelValue =
+            //   (firstRow[iter + 3] / 255) *
+            //   ((firstRow[iter] + firstRow[iter + 1] + firstRow[iter + 2]) / 3);
+
+            if (rowWiseRGBA[looper] == undefined) {
+              rowWiseRGBA[looper] = [0, 0, 0, 0];
+            }
+
+            rowWiseRGBA[looper][0] += rowWiseRGBAArr[looper][iter];
+            rowWiseRGBA[looper][1] += rowWiseRGBAArr[looper][iter + 1];
+            rowWiseRGBA[looper][2] += rowWiseRGBAArr[looper][iter + 2];
+            rowWiseRGBA[looper][3] += rowWiseRGBAArr[looper][iter + 3];
+          }
+        }
+
         //first row
 
-        for (let iter = 0; iter < 12; iter += 4) {
-          // const pixelValue =
-          //   (firstRow[iter + 3] / 255) *
-          //   ((firstRow[iter] + firstRow[iter + 1] + firstRow[iter + 2]) / 3);
+        // for (let iter = 0; iter < 12; iter += 4) {
+        //   // const pixelValue =
+        //   //   (firstRow[iter + 3] / 255) *
+        //   //   ((firstRow[iter] + firstRow[iter + 1] + firstRow[iter + 2]) / 3);
 
-          if (rowWiseRGBA[0] == undefined) {
-            rowWiseRGBA[0] = [0, 0, 0, 0];
-          }
+        //   if (rowWiseRGBA[0] == undefined) {
+        //     rowWiseRGBA[0] = [0, 0, 0, 0];
+        //   }
 
-          rowWiseRGBA[0][0] += firstRowData[iter];
-          rowWiseRGBA[0][1] += firstRowData[iter + 1];
-          rowWiseRGBA[0][2] += firstRowData[iter + 2];
-          rowWiseRGBA[0][3] += firstRowData[iter + 3];
-        }
+        //   rowWiseRGBA[0][0] += firstRowData[iter];
+        //   rowWiseRGBA[0][1] += firstRowData[iter + 1];
+        //   rowWiseRGBA[0][2] += firstRowData[iter + 2];
+        //   rowWiseRGBA[0][3] += firstRowData[iter + 3];
+        // }
 
-        //for second-row
-        for (let iter = 0; iter < 12; iter += 4) {
-          // const pixelValue =
-          //   (secondRow[iter + 3] / 255) *
-          //   ((secondRow[iter] + secondRow[iter + 1] + secondRow[iter + 2]) /
-          //     3);
+        // //for second-row
+        // for (let iter = 0; iter < 12; iter += 4) {
+        //   // const pixelValue =
+        //   //   (secondRow[iter + 3] / 255) *
+        //   //   ((secondRow[iter] + secondRow[iter + 1] + secondRow[iter + 2]) /
+        //   //     3);
 
-          if (rowWiseRGBA[1] == undefined) {
-            rowWiseRGBA[1] = [0, 0, 0, 0];
-          }
+        //   if (rowWiseRGBA[1] == undefined) {
+        //     rowWiseRGBA[1] = [0, 0, 0, 0];
+        //   }
 
-          rowWiseRGBA[1][0] += secondRowData[iter];
-          rowWiseRGBA[1][1] += secondRowData[iter + 1];
-          rowWiseRGBA[1][2] += secondRowData[iter + 2];
-          rowWiseRGBA[1][3] += secondRowData[iter + 3];
-        }
+        //   rowWiseRGBA[1][0] += secondRowData[iter];
+        //   rowWiseRGBA[1][1] += secondRowData[iter + 1];
+        //   rowWiseRGBA[1][2] += secondRowData[iter + 2];
+        //   rowWiseRGBA[1][3] += secondRowData[iter + 3];
+        // }
 
-        //for final-row
-        for (let iter = 0; iter < 12; iter += 4) {
-          if (rowWiseRGBA[2] == undefined) {
-            rowWiseRGBA[2] = [0, 0, 0, 0];
-          }
+        // //for final-row
+        // for (let iter = 0; iter < 12; iter += 4) {
+        //   if (rowWiseRGBA[2] == undefined) {
+        //     rowWiseRGBA[2] = [0, 0, 0, 0];
+        //   }
 
-          rowWiseRGBA[2][0] += lastRowData[iter];
-          rowWiseRGBA[2][1] += lastRowData[iter + 1];
-          rowWiseRGBA[2][2] += lastRowData[iter + 2];
-          rowWiseRGBA[2][3] += lastRowData[iter + 3];
-        }
+        //   rowWiseRGBA[2][0] += lastRowData[iter];
+        //   rowWiseRGBA[2][1] += lastRowData[iter + 1];
+        //   rowWiseRGBA[2][2] += lastRowData[iter + 2];
+        //   rowWiseRGBA[2][3] += lastRowData[iter + 3];
+        // }
 
         //Now aggregating the whole value
 
@@ -92,14 +117,30 @@ export class ImageDraw {
 
         //   }
 
-        finalAggregatedValue[0] +=
-          (rowWiseRGBA[0][0] + rowWiseRGBA[1][0] + rowWiseRGBA[2][0])/9;
-        finalAggregatedValue[1] +=
-          (rowWiseRGBA[0][1] + rowWiseRGBA[1][1] + rowWiseRGBA[2][1])/9;
-        finalAggregatedValue[2] +=
-          (rowWiseRGBA[0][2] + rowWiseRGBA[1][2] + rowWiseRGBA[2][2])/9;
-        finalAggregatedValue[3] +=
-          (rowWiseRGBA[0][3] + rowWiseRGBA[1][3] + rowWiseRGBA[2][3])/9;
+        for(let iter=0; iter< times; iter++){
+
+          finalAggregatedValue[0] += rowWiseRGBA[iter][0]
+          finalAggregatedValue[1] += rowWiseRGBA[iter][1]
+          finalAggregatedValue[2] += rowWiseRGBA[iter][2]
+          finalAggregatedValue[3] += rowWiseRGBA[iter][3]
+
+          if(iter == times -1){
+            finalAggregatedValue[0] = finalAggregatedValue[0] / 9;
+            finalAggregatedValue[1] = finalAggregatedValue[1] / 9;
+            finalAggregatedValue[2] = finalAggregatedValue[2] / 9;
+            finalAggregatedValue[3] = finalAggregatedValue[3] / 9;
+          }
+
+        }
+
+        // finalAggregatedValue[0] +=
+        //   (rowWiseRGBA[0][0] + rowWiseRGBA[1][0] + rowWiseRGBA[2][0])/9;
+        // finalAggregatedValue[1] +=
+        //   (rowWiseRGBA[0][1] + rowWiseRGBA[1][1] + rowWiseRGBA[2][1])/9;
+        // finalAggregatedValue[2] +=
+        //   (rowWiseRGBA[0][2] + rowWiseRGBA[1][2] + rowWiseRGBA[2][2])/9;
+        // finalAggregatedValue[3] +=
+        //   (rowWiseRGBA[0][3] + rowWiseRGBA[1][3] + rowWiseRGBA[2][3])/9;
 
         //   if(i<3){
         //   console.log(finalAggregatedValue)
@@ -123,19 +164,19 @@ export class ImageDraw {
     console.log(this.imageRBGADataArr);
 
 
-    console.log('width, height::',Math.floor(this.imageNaturalWidth/3),
-      Math.floor(this.imageNaturalHeight/3)
+    console.log('width, height::',Math.floor(this.imageNaturalWidth/times),
+      Math.floor(this.imageNaturalHeight/times)
 )
 
     const imageData = new ImageData(
       new Uint8ClampedArray(this.imageRBGADataArr!),
-      Math.floor(this.imageNaturalWidth/3),
-      Math.floor(this.imageNaturalHeight/3)
+      Math.floor(this.imageNaturalWidth/times),
+      Math.floor(this.imageNaturalHeight/times)
     );
 
 
-    canvas.height = Math.floor(this.imageNaturalHeight/3);
-    canvas.width = Math.floor(this.imageNaturalWidth/3);
+    canvas.height = Math.floor(this.imageNaturalHeight/times);
+    canvas.width = Math.floor(this.imageNaturalWidth/times);
 
 
     ctx.clearRect(0,0,this.imageNaturalWidth +20,this.imageNaturalHeight);
@@ -151,7 +192,7 @@ export class ImageDraw {
 
     for (let h = 0; h < this.imageNaturalHeight; h += 2) {
 
-      let fourRowsAtATime: number [][] = [[],[],[],[]]
+      let rowsAtATime: number [][] = []
 
       for (let w = 0; w < this.imageNaturalWidth; w += 2) {
 
@@ -217,7 +258,7 @@ export class ImageDraw {
         // Nested Array for new data
 
         // Here data are stored serially in (R G B A) format rowWise
-        let rowWiseRGBANew: number [][] = [[],[],[],[]]
+        let rowWiseRGBANew: number [][] = []
 
         const incrementalMultiplyer =  1 / (times + 1)
         // const incrementalMultiplyer = 0.4
@@ -264,6 +305,11 @@ export class ImageDraw {
             for(let iterInner=0; iterInner < (2+times); iterInner++){
 
               if (iterInner == 0) {
+
+                if(rowWiseRGBANew[1+times] == undefined){
+                  rowWiseRGBANew[1+times] = [];
+                }
+
                 rowWiseRGBANew[1+times].push(...rowWiseRGBA[2]);
               } else if (iterInner == 1 + times) {
                 rowWiseRGBANew[1+times].push(...rowWiseRGBA[3]);
@@ -348,10 +394,23 @@ export class ImageDraw {
         }
 
 
-        fourRowsAtATime[0].push(...rowWiseRGBANew[0]);
-        fourRowsAtATime[1].push(...rowWiseRGBANew[1]);
-        fourRowsAtATime[2].push(...rowWiseRGBANew[2]);
-        fourRowsAtATime[3].push(...rowWiseRGBANew[3]);
+        // fourRowsAtATime[0].push(...rowWiseRGBANew[0]);
+        // fourRowsAtATime[1].push(...rowWiseRGBANew[1]);
+        // fourRowsAtATime[2].push(...rowWiseRGBANew[2]);
+        // fourRowsAtATime[3].push(...rowWiseRGBANew[3]);
+
+        //appending values into rowsAtATime variable
+
+        for(let rowIter=0; rowIter< (2+times); rowIter++){
+
+          if(rowsAtATime[rowIter] == undefined){
+            rowsAtATime[rowIter] = [];
+          }
+
+          rowsAtATime[rowIter].push(...rowWiseRGBANew[rowIter]);
+
+
+        }
 
         // rowWiseRGBANew.map(el=>fourRowsAtATime.push(el))
 
@@ -367,7 +426,7 @@ export class ImageDraw {
 
       // console.log(fourRowsAtATime[0].length)
 
-      fourRowsAtATime.map(el=>this.imageRGBDataArrBicubic!.push(el))
+      rowsAtATime.map(el=>this.imageRGBDataArrBicubic!.push(el))
 
     }
 
@@ -375,7 +434,7 @@ export class ImageDraw {
 
     let flatRGBAData: number[] = []
 
-    this.imageRGBDataArrBicubic?.map((el,i)=>{
+    this.imageRGBDataArrBicubic?.map((el)=>{
       flatRGBAData.push(...el)
       if(el.length != 5120){
         console.log('length not met')
@@ -388,7 +447,7 @@ export class ImageDraw {
     console.log(height)
     console.log(this.imageRGBDataArrBicubic![0].length)
 
-    console.log(flatRGBAData.length)
+    // console.log(flatRGBAData.length)
 
     // console.log("width and height::",this.imageNaturalWidth,this.imageNaturalHeight)
 
@@ -397,7 +456,7 @@ export class ImageDraw {
     canvas.height = height;
     canvas.width = this.imageRGBDataArrBicubic![0].length / 4;
     ctx.putImageData(imageData,0,0);
-    console.log(flatRGBAData)
+    // console.log(flatRGBAData)
 
 
   }
