@@ -20,6 +20,8 @@ const greenFilterButton:HTMLButtonElement | null = document.querySelector('#gree
 
 const globalOptionSelector:HTMLSelectElement | null = document.querySelector('#options-selector');
 
+const resizeTypeSelector:HTMLSelectElement | null = document.querySelector('#resize-option')
+
 const ctx = imageCanvas!.getContext("2d", { willReadFrequently: true });
 
 const imageDimensions:{imageNaturalWidth:number, imageNaturalHeight:number} = { imageNaturalWidth: 0, imageNaturalHeight: 0 };
@@ -116,6 +118,16 @@ imageSelector?.addEventListener("change", (e: any) => {
           imageDimensions.imageNaturalWidth,
           imageDimensions.imageNaturalHeight
         );
+
+        resizeButton?.addEventListener("click", () => {
+          const imageInstance = new ImageDraw({imageNaturalHeight: image.height, imageNaturalWidth:image.width});
+
+          if (resizeTypeSelector?.value == "Average-resize") {
+            imageInstance.averageResize(ctx!, imageCanvas!);
+          } else {
+            imageInstance.bicubicInterpolationResize(ctx!, imageCanvas!, 2);
+          }
+        });
 
         //getting image data
         // const imageData = ctx?.getImageData(50,50,10,10);
@@ -270,9 +282,7 @@ startButton?.addEventListener("click", () => {
 });
 
 
-resizeButton?.addEventListener('click',()=>{
-  new ImageDraw(imageDimensions).averageResize(ctx!,imageCanvas!);
-})
+
 
 
 greenFilterButton?.addEventListener('click',()=>{
