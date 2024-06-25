@@ -3,6 +3,7 @@ import { DrawingRectState } from "./Constants";
 import { ImageDraw } from "./Image";
 import { Rectangle, RectangleInput } from "./Rectangle";
 import { Hand } from "./Hand";
+import { Head } from "./Head";
 // const imageContainer: HTMLDivElement | null = document.querySelector('.image-container');
 const imageSelector: HTMLInputElement | null =
   document.querySelector("#imageSelector");
@@ -121,15 +122,23 @@ imageSelector?.addEventListener("change", (e: any) => {
           imageDimensions.imageNaturalHeight
         );
 
-        resizeButton?.addEventListener("click", () => {
-          const imageInstance = new ImageDraw({imageNaturalHeight: image.height, imageNaturalWidth:image.width});
-          imageInstanceCont[0] = imageInstance;
+        const imageInstance = new ImageDraw({
+          imageNaturalHeight: image.height,
+          imageNaturalWidth: image.width,
+        });
+        imageInstanceCont[0] = imageInstance;
 
+        resizeButton?.addEventListener("click", () => {
           if (resizeTypeSelector?.value == "Average-resize") {
-            imageInstance.averageResize(ctx!, imageCanvas!,2);
+            imageInstance.averageResize(ctx!, imageCanvas!, 2);
           } else {
             imageInstance.bicubicInterpolationResize(ctx!, imageCanvas!, 2);
           }
+        });
+
+        greenFilterButton?.addEventListener("click", () => {
+          console.log("checking");
+          imageInstanceCont[0].greyFilter(ctx!);
         });
 
         //getting image data
@@ -214,7 +223,8 @@ fallBallButton?.addEventListener("click", () => {
 
 let ballFallingBackRerenderer = 0;
 
-let handStatePreserver: Hand | undefined = undefined 
+let handStatePreserver: Hand | undefined = undefined; 
+let headStatePreserver:Head | undefined = undefined;
 
 // let ballFallPoint:BallFallEnd = {yPositionLimit: imageDimensions.imageNaturalHeight,met:false};
 
@@ -249,6 +259,13 @@ const updateRectangleRenderer = () => {
           handStatePreserver = rectangleArr[0].main.getHand();
           }
           handStatePreserver?.moveHand(ctx!);
+        }else if(animationSelected == AnimationSelection.BobbingHead){
+          if(headStatePreserver == undefined){
+            headStatePreserver = rectangleArr[0].main.getHead();
+          }
+
+          headStatePreserver?.bobHead(ctx!);
+
         }
       // }
     } else {
@@ -288,10 +305,7 @@ startButton?.addEventListener("click", () => {
 
 
 
-greenFilterButton?.addEventListener('click',()=>{
-  console.log('checking')
-imageInstanceCont[0].greenFilter(ctx!);
-})
+
 
 
 
