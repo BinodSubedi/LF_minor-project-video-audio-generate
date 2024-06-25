@@ -78,6 +78,8 @@ if(animationStyleElement != null){
 
 const rectangleArr: RectangleArrUnit[] = [];
 
+const imageInstanceCont: ImageDraw[] | null = []
+
 imageSelector?.addEventListener("change", (e: any) => {
   //   console.log("selected");
   //   console.log(e.target.files[0])
@@ -121,9 +123,10 @@ imageSelector?.addEventListener("change", (e: any) => {
 
         resizeButton?.addEventListener("click", () => {
           const imageInstance = new ImageDraw({imageNaturalHeight: image.height, imageNaturalWidth:image.width});
+          imageInstanceCont[0] = imageInstance;
 
           if (resizeTypeSelector?.value == "Average-resize") {
-            imageInstance.averageResize(ctx!, imageCanvas!);
+            imageInstance.averageResize(ctx!, imageCanvas!,2);
           } else {
             imageInstance.bicubicInterpolationResize(ctx!, imageCanvas!, 2);
           }
@@ -287,7 +290,7 @@ startButton?.addEventListener("click", () => {
 
 greenFilterButton?.addEventListener('click',()=>{
   console.log('checking')
-  new ImageDraw(imageDimensions).greenFilter(ctx!);
+imageInstanceCont[0].greenFilter(ctx!);
 })
 
 

@@ -15,12 +15,16 @@ export class ImageDraw {
 
     //making the pixel size perfectly divisible by 3, both height and width;
 
-    this.imageNaturalHeight -= this.imageNaturalHeight % 3;
-    this.imageNaturalWidth -= this.imageNaturalWidth % 3;
+    // this.imageNaturalHeight -= this.imageNaturalHeight % 3;
+    // this.imageNaturalWidth -= this.imageNaturalWidth % 3;
   }
 
   // This is a 3*3 grid array matrix comparison, where all pixel values are averaged, and these grids are non-overlapping
   averageResize(ctx: CanvasRenderingContext2D,canvas:HTMLCanvasElement,times:number = 3) {
+
+    this.imageNaturalHeight -= this.imageNaturalHeight % times;
+    this.imageNaturalWidth -= this.imageNaturalWidth % times;
+
 
     // console.log('height and width::',this.imageNaturalHeight,this.imageNaturalWidth)
     for (let h = 0; h < this.imageNaturalHeight; h += times) {
@@ -45,7 +49,7 @@ export class ImageDraw {
 
         for (let looper = 0; looper < times; looper++) {
 
-          for (let iter = 0; iter < 12; iter += 4) {
+          for (let iter = 0; iter < 4*times; iter += 4) {
             // const pixelValue =
             //   (firstRow[iter + 3] / 255) *
             //   ((firstRow[iter] + firstRow[iter + 1] + firstRow[iter + 2]) / 3);
@@ -117,6 +121,8 @@ export class ImageDraw {
 
         //   }
 
+        const averageConstant = times * times;
+
         for(let iter=0; iter< times; iter++){
 
           finalAggregatedValue[0] += rowWiseRGBA[iter][0]
@@ -125,10 +131,10 @@ export class ImageDraw {
           finalAggregatedValue[3] += rowWiseRGBA[iter][3]
 
           if(iter == times -1){
-            finalAggregatedValue[0] = finalAggregatedValue[0] / 9;
-            finalAggregatedValue[1] = finalAggregatedValue[1] / 9;
-            finalAggregatedValue[2] = finalAggregatedValue[2] / 9;
-            finalAggregatedValue[3] = finalAggregatedValue[3] / 9;
+            finalAggregatedValue[0] = finalAggregatedValue[0] / averageConstant;
+            finalAggregatedValue[1] = finalAggregatedValue[1] / averageConstant;
+            finalAggregatedValue[2] = finalAggregatedValue[2] / averageConstant;
+            finalAggregatedValue[3] = finalAggregatedValue[3] / averageConstant;
           }
 
         }
@@ -181,6 +187,10 @@ export class ImageDraw {
 
     ctx.clearRect(0,0,this.imageNaturalWidth +20,this.imageNaturalHeight);
     ctx.putImageData(imageData,0,0);
+
+    this.imageNaturalHeight =Math.floor(this.imageNaturalHeight/times);
+    this.imageNaturalWidth =Math.floor(this.imageNaturalWidth/times);
+ 
 
   }
 
@@ -455,14 +465,21 @@ export class ImageDraw {
 
     canvas.height = height;
     canvas.width = this.imageRGBDataArrBicubic![0].length / 4;
+    ctx.clearRect(0,0,this.imageNaturalWidth,this.imageNaturalHeight)
     ctx.putImageData(imageData,0,0);
     // console.log(flatRGBAData)
+
+    this.imageNaturalHeight = height;
+    this.imageNaturalWidth =this.imageRGBDataArrBicubic![0].length / 4;
+ 
 
 
   }
 
 
   greenFilter(ctx:CanvasRenderingContext2D){
+
+    console.log('height,width::',this.imageNaturalHeight,this.imageNaturalWidth)
 
     for(let w=0; w < this.imageNaturalWidth; w++){
         for(let h=0; h< this.imageNaturalHeight; h++){
