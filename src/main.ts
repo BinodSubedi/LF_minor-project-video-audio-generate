@@ -23,6 +23,8 @@ const globalOptionSelector:HTMLSelectElement | null = document.querySelector('#o
 
 const resizeTypeSelector:HTMLSelectElement | null = document.querySelector('#resize-option')
 
+const filterSelector:HTMLSelectElement | null = document.querySelector('#filter-options')
+
 const ctx = imageCanvas!.getContext("2d", { willReadFrequently: true });
 
 const imageDimensions:{imageNaturalWidth:number, imageNaturalHeight:number} = { imageNaturalWidth: 0, imageNaturalHeight: 0 };
@@ -138,7 +140,11 @@ imageSelector?.addEventListener("change", (e: any) => {
 
         greenFilterButton?.addEventListener("click", () => {
           console.log("checking");
+          if(filterSelector?.value == "grey"){
           imageInstanceCont[0].greyFilter(ctx!);
+          }else{
+          imageInstanceCont[0].greenFilter(ctx!);
+          }
         });
 
         //getting image data

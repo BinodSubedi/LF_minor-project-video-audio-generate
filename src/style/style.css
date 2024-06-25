@@ -37,13 +37,15 @@ h1 {
 button {
   border-radius: 8px;
   border: 1px solid transparent;
-  padding: 0.6em 1.2em;
+  padding: 0.6em 0.5rem;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
+  background-color: #1a1a1a !important;
+  color: white;
 }
 
 button:hover {
@@ -53,6 +55,19 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+select {
+  text-align: center;
+  padding: 0.3rem;
+  border-radius: 0.6rem;
+  background-color: #1a1a1a;
+  color: white;
+}
+
+input {
+  background-color: #1a1a1a;
+  color: white;
 }
 
 @media (prefers-color-scheme: light) {
@@ -70,26 +85,28 @@ button:focus-visible {
 body {
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  height: 100%;
+  width: 100%;
 }
 
 main {
-  height: -moz-min-content;
-  height: min-content;
-  min-height: 120vh;
+  min-height: -moz-min-content;
+  min-height: min-content;
   width: 100vw;
   display: flex;
-  flex-direction: column;
 }
 
 .image-container {
   height: -moz-min-content;
   height: min-content;
   min-height: 100vh;
-  width: 100%;
+  width: 82%;
   background-color: beige;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 1rem;
 }
 
 .canvas {
@@ -100,7 +117,30 @@ main {
 }
 
 .image-utilities {
-  height: 20vh;
-  width: 100%;
+  min-height: 100vh;
+  width: 18%;
   background-color: lightblue;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 1rem;
+}
+
+.animate-container {
+  height: 30%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.resize-container, .filter-container {
+  height: 14%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.image-utilities div:not(:first-child) {
+  padding-top: 2rem;
+  border-top: 0.1rem #1a1a1a solid;
 }

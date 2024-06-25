@@ -85,26 +85,6 @@ export class Head{
                 const currentImageData = ctx.getImageData(w, h, 1, 1);
                 const replacingImageData = ctx.getImageData(0, 0, 1, 1);
 
-                // we need to move the pixel in both x and y direction as to make it look like waving so,
-                // might need to check in later for improvements
-
-                //  if(w < median){
-
-                //     if(i <= 5){
-                //     ctx.putImageData(currentImageData, w - xDisplacementFactor, h- yDisplacementFactor);
-                //     }else{
-                //     ctx.putImageData(currentImageData, w + xDisplacementFactor, h+ yDisplacementFactor);
-                //     }
-                //  }else{
-
-                //     if(i<=5){
-                //     ctx.putImageData(currentImageData, w - xDisplacementFactor, h- yDisplacementFactor);
-                //     }else{
-                //     ctx.putImageData(currentImageData, w + xDisplacementFactor, h+ yDisplacementFactor);
-                //     }
-
-                //  }
-
                 ctx.putImageData(
                   currentImageData,
                   w + xDisplacementFactor,

@@ -13,12 +13,7 @@
       </header>
       <main class="main-container">
 
-        <div class="image-container">
-
-          <canvas class="canvas" height="853" width="640"></canvas>
-
-        </div>
-        <div class="image-utilities">
+<div class="image-utilities">
           <div class="image-utilities__selector">
             <select id="options-selector">
               <option value="animate">Animate</option>
@@ -51,10 +46,21 @@
           </div>
 
           <div class="filter-container">
-            <button id="greenFilter-button">Green-filter</button>
+            <select id="filter-options">
+              <option value="grey">Grey</option>
+              <option value="green">Green</option>
+            </select>
+            <button id="greenFilter-button">Employ filter</button>
           </div>
 
         </div>
+
+        <div class="image-container">
+
+          <canvas class="canvas" height="853" width="640"></canvas>
+
+        </div>
+        
       </main>
       <footer class="footer">
       </footer>
