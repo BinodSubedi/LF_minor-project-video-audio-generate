@@ -83,9 +83,9 @@ if(animationStyleElement != null){
 
 }
 
-let rectangleArr: RectangleArrUnit[] = [];
+const rectangleArr: RectangleArrUnit[] = [];
 
-let imageInstanceCont: ImageDraw[] | null = []
+const imageInstanceCont: ImageDraw[] | null = []
 
 imageSelector?.addEventListener("change", (e: any) => {
   //   console.log("selected");
@@ -134,29 +134,7 @@ imageSelector?.addEventListener("change", (e: any) => {
         });
         imageInstanceCont![0] = imageInstance;
 
-        resizeButton?.addEventListener("click", () => {
-          if (resizeTypeSelector?.value == "Average-resize") {
-            imageInstance.averageResize(ctx!, imageCanvas!, parseInt(resizeFactor!.value));
-          } else {
-            let val = parseInt(resizeFactor!.value);
-            if (val == 3){
-              val=4;
-            }else if(val == 4){
-              val=6
-            }
-            imageInstance.bicubicInterpolationResize(ctx!, imageCanvas!, val);
-          }
-        });
-
-        greenFilterButton?.addEventListener("click", () => {
-          console.log("checking");
-          if(filterSelector?.value == "grey"){
-          imageInstanceCont![0].greyFilter(ctx!,imageCanvas!);
-          }else{
-          imageInstanceCont![0].greenFilter(ctx!,imageCanvas!);
-          }
-        });
-
+       
         //getting image data
         // const imageData = ctx?.getImageData(50,50,10,10);
         // const data = imageData!.data;
@@ -227,7 +205,7 @@ imageCanvas!.addEventListener("mouseup", () => {
   }
 });
 
-let ballArr: Ball[] = [];
+const ballArr: Ball[] = [];
 
 fallBallButton?.addEventListener("click", () => {
   for(let i=0;i<rectangleLimit;i++){
@@ -318,14 +296,34 @@ startButton?.addEventListener("click", () => {
 });
 
 
+ resizeButton?.addEventListener("click", () => {
+          if (resizeTypeSelector?.value == "Average-resize") {
+            imageInstanceCont![0].averageResize(ctx!, imageCanvas!, parseInt(resizeFactor!.value));
+          } else {
+            let val = parseInt(resizeFactor!.value);
+            if (val == 3){
+              val=4;
+            }else if(val == 4){
+              val=6
+            }
+            imageInstanceCont![0].bicubicInterpolationResize(ctx!, imageCanvas!, val);
+          }
+        });
+
+        greenFilterButton?.addEventListener("click", () => {
+          console.log("checking");
+          if(filterSelector?.value == "grey"){
+          imageInstanceCont![0].greyFilter(ctx!,imageCanvas!);
+          }else{
+          imageInstanceCont![0].greenFilter(ctx!,imageCanvas!);
+          }
+        });
+
+
+
 resetButton?.addEventListener('click',()=>{
-  ballArr = [];
-  ballFallingBackRerenderer = 0;
-  rectangleNowIndex = 0;
-  rectangleArr = [];
-  imageInstanceCont = []
-  window.alert('Parameters has been reset, you may proceed without reload')
-  // ctx?.clearRect(0,0,imageDimensions.imageNaturalWidth,imageDimensions.imageNaturalHeight)
+
+  window.location.reload()
 
 })
 
