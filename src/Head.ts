@@ -16,188 +16,206 @@ export type HeadSectionWise = {
   yEnd:number;
 };
 
-export class Head{
+export class Head {
+  x_start: number;
+  x_end: number;
+  y_start: number;
+  y_end: number;
+  xMean?: number;
+  yMean?: number;
+  mappedSectionedHead: Map<number, HeadSectionWise> | undefined;
+  bobHeadIter: number = 0;
+  mediaRecorder?: any;
+  streamArr: Blob[] | undefined;
+  exported: boolean = false;
 
-    x_start:number;
-    x_end:number;
-    y_start:number;
-    y_end:number;
-    xMean?:number;
-    yMean?:number;
-    mappedSectionedHead:Map<number, HeadSectionWise> | undefined
-    bobHeadIter:number = 0
+  constructor(input: HeadInput) {
+    const { x_start, x_end, y_start, y_end } = input;
+    this.x_start = x_start;
+    this.x_end = x_end;
+    this.y_start = y_start;
+    this.y_end = y_end;
+  }
 
-    constructor(input:HeadInput){
+  bobHead(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
+    //last to first as we will move hand in the clock-wise direction first
+    // and we don not want any pixel override problem
 
-        const {x_start,x_end,y_start,y_end} = input;
-        this.x_start = x_start;
-        this.x_end = x_end;
-        this.y_start = y_start;
-        this.y_end = y_end;
+    if (this.streamArr == undefined) {
+      this.streamArr = [];
 
+      const stream = canvas.captureStream();
+      this.mediaRecorder = new MediaRecorder(stream);
     }
 
-    bobHead(ctx:CanvasRenderingContext2D){
+    this.mediaRecorder.ondataavailable = (e: any) => {
+      if (e.data.size > 0) {
+        this.streamArr?.push(e.data);
 
+        // console.log(this.streamArr)
 
-        //last to first as we will move hand in the clock-wise direction first
-        // and we don not want any pixel override problem
+        const recordedBlob = new Blob(this.streamArr, { type: "video/webm" });
+        let link = document.createElement("a");
+        link.href = URL.createObjectURL(recordedBlob);
+        link.download = "bob-head.webm";
+        link.click();
+        URL.revokeObjectURL(link.href);
+      }
+    };
 
-        console.log(this.mappedSectionedHead)
+    if (this.mediaRecorder.state == "inactive") {
+      this.mediaRecorder?.start();
+    }
 
-        if (this.bobHeadIter < 25 || this.bobHeadIter > 50) {
-          for (let i = 10; i > 0; i--) {
-            const focusedSection = this.mappedSectionedHead!.get(i);
+    // console.log(this.mappedSectionedHead);
 
-            //   let xDisplacementFactor;
+    if (this.bobHeadIter < 25 || this.bobHeadIter > 50) {
+      for (let i = 10; i > 0; i--) {
+        const focusedSection = this.mappedSectionedHead!.get(i);
 
-            //   if(i == 10){
-            //     xDisplacementFactor = 0;
-            //   }else{
+        //   let xDisplacementFactor;
 
-            let xDisplacementFactor = Math.ceil(5 / i);
-            let yDisplacementFactor = 0.5;
+        //   if(i == 10){
+        //     xDisplacementFactor = 0;
+        //   }else{
 
-              if (this.bobHeadIter > 80) {
+        let xDisplacementFactor = Math.ceil(5 / i);
+        let yDisplacementFactor = 0.5;
 
-                return;
-
-              }
-
-            this.bobHeadIter++;
-
-            //   }
-
-            // const median = (focusedSection!.max.xPosition + focusedSection!.min.xPosition)/2
-
-            //Again even in the small sections we are going from prefered edge direction[Now being closest to clock-wise direction]
-
-            for (
-              let h = focusedSection!.yEnd;
-              h > focusedSection!.yStart;
-              h--
-            ) {
-              for (
-                let w = focusedSection!.max.xPosition;
-                w > focusedSection!.min.xPosition;
-                w--
-              ) {
-                const currentImageData = ctx.getImageData(w, h, 1, 1);
-                const replacingImageData = ctx.getImageData(0, 0, 1, 1);
-
-                ctx.putImageData(
-                  currentImageData,
-                  w + xDisplacementFactor,
-                  h + yDisplacementFactor
-                );
-                ctx.putImageData(replacingImageData, w, h);
-
-                if (i == 10) {
-                  ctx.putImageData(currentImageData, w+xDisplacementFactor, h + 2* yDisplacementFactor);
-                }
-              }
-            }
-
-            const { min, max, yStart, yEnd } = focusedSection!;
-
-            this.mappedSectionedHead!.set(i, {
-              min: { xPosition: min.xPosition + xDisplacementFactor },
-              max: { xPosition: max.xPosition + xDisplacementFactor },
-              yStart: yStart + yDisplacementFactor,
-              yEnd: yEnd + yDisplacementFactor,
-            });
+        if (this.bobHeadIter > 80) {
+          if (!this.exported) {
+            this.exported = true;
+            this.mediaRecorder!.stop();
           }
-        } else {
 
-            console.log('checking')
+          return;
+        }
 
-          for (let i = 1; i < 11; i++) {
-            const focusedSection = this.mappedSectionedHead!.get(i);
+        this.bobHeadIter++;
 
-            //   let xDisplacementFactor;
+        //   }
 
-            //   if(i == 10){
-            //     xDisplacementFactor = 0;
-            //   }else{
+        // const median = (focusedSection!.max.xPosition + focusedSection!.min.xPosition)/2
 
-            let xDisplacementFactor = - Math.ceil(5 / i);
-            let yDisplacementFactor = - 0.5;
+        //Again even in the small sections we are going from prefered edge direction[Now being closest to clock-wise direction]
 
-            // if(this.bobHeadIter == 50){
-            //     this.bobHeadIter = 0;
-            // }
+        for (let h = focusedSection!.yEnd; h > focusedSection!.yStart; h--) {
+          for (
+            let w = focusedSection!.max.xPosition;
+            w > focusedSection!.min.xPosition;
+            w--
+          ) {
+            const currentImageData = ctx.getImageData(w, h, 1, 1);
+            const replacingImageData = ctx.getImageData(0, 0, 1, 1);
 
-            //   if (this.bobHeadIter > 25) {
+            ctx.putImageData(
+              currentImageData,
+              w + xDisplacementFactor,
+              h + yDisplacementFactor
+            );
+            ctx.putImageData(replacingImageData, w, h);
 
-            //     xDisplacementFactor *= -1;
-            //     yDisplacementFactor *= -1;
-            //     return;
-
-            //   }
-
-            this.bobHeadIter++;
-
-            //   }
-
-            // const median = (focusedSection!.max.xPosition + focusedSection!.min.xPosition)/2
-
-            //Again even in the small sections we are going from prefered edge direction[Now being closest to clock-wise direction]
-
-            for (
-              let h = focusedSection!.yStart;
-              h < focusedSection!.yEnd;
-              h++
-            ) {
-              for (
-                let w = focusedSection!.min.xPosition;
-                w < focusedSection!.max.xPosition;
-                w++
-              ) {
-                const currentImageData = ctx.getImageData(w, h, 1, 1);
-                const replacingImageData = ctx.getImageData(0, 0, 1, 1);
-
-                // we need to move the pixel in both x and y direction as to make it look like waving so,
-                // might need to check in later for improvements
-
-                //  if(w < median){
-
-                //     if(i <= 5){
-                //     ctx.putImageData(currentImageData, w - xDisplacementFactor, h- yDisplacementFactor);
-                //     }else{
-                //     ctx.putImageData(currentImageData, w + xDisplacementFactor, h+ yDisplacementFactor);
-                //     }
-                //  }else{
-
-                //     if(i<=5){
-                //     ctx.putImageData(currentImageData, w - xDisplacementFactor, h- yDisplacementFactor);
-                //     }else{
-                //     ctx.putImageData(currentImageData, w + xDisplacementFactor, h+ yDisplacementFactor);
-                //     }
-
-                //  }
-
-                ctx.putImageData(
-                  currentImageData,
-                  w + xDisplacementFactor,
-                  h + yDisplacementFactor
-                );
-                ctx.putImageData(replacingImageData, w, h);
-              }
+            if (i == 10) {
+              ctx.putImageData(
+                currentImageData,
+                w + xDisplacementFactor,
+                h + 2 * yDisplacementFactor
+              );
             }
-
-            const { min, max, yStart, yEnd } = focusedSection!;
-
-            this.mappedSectionedHead!.set(i, {
-              min: { xPosition: min.xPosition + xDisplacementFactor },
-              max: { xPosition: max.xPosition + xDisplacementFactor },
-              yStart: yStart + yDisplacementFactor,
-              yEnd: yEnd + yDisplacementFactor,
-            });
           }
         }
 
+        const { min, max, yStart, yEnd } = focusedSection!;
 
+        this.mappedSectionedHead!.set(i, {
+          min: { xPosition: min.xPosition + xDisplacementFactor },
+          max: { xPosition: max.xPosition + xDisplacementFactor },
+          yStart: yStart + yDisplacementFactor,
+          yEnd: yEnd + yDisplacementFactor,
+        });
+      }
+    } else {
+      console.log("checking");
 
+      for (let i = 1; i < 11; i++) {
+        const focusedSection = this.mappedSectionedHead!.get(i);
+
+        //   let xDisplacementFactor;
+
+        //   if(i == 10){
+        //     xDisplacementFactor = 0;
+        //   }else{
+
+        let xDisplacementFactor = -Math.ceil(5 / i);
+        let yDisplacementFactor = -0.5;
+
+        // if(this.bobHeadIter == 50){
+        //     this.bobHeadIter = 0;
+        // }
+
+        //   if (this.bobHeadIter > 25) {
+
+        //     xDisplacementFactor *= -1;
+        //     yDisplacementFactor *= -1;
+        //     return;
+
+        //   }
+
+        this.bobHeadIter++;
+
+        //   }
+
+        // const median = (focusedSection!.max.xPosition + focusedSection!.min.xPosition)/2
+
+        //Again even in the small sections we are going from prefered edge direction[Now being closest to clock-wise direction]
+
+        for (let h = focusedSection!.yStart; h < focusedSection!.yEnd; h++) {
+          for (
+            let w = focusedSection!.min.xPosition;
+            w < focusedSection!.max.xPosition;
+            w++
+          ) {
+            const currentImageData = ctx.getImageData(w, h, 1, 1);
+            const replacingImageData = ctx.getImageData(0, 0, 1, 1);
+
+            // we need to move the pixel in both x and y direction as to make it look like waving so,
+            // might need to check in later for improvements
+
+            //  if(w < median){
+
+            //     if(i <= 5){
+            //     ctx.putImageData(currentImageData, w - xDisplacementFactor, h- yDisplacementFactor);
+            //     }else{
+            //     ctx.putImageData(currentImageData, w + xDisplacementFactor, h+ yDisplacementFactor);
+            //     }
+            //  }else{
+
+            //     if(i<=5){
+            //     ctx.putImageData(currentImageData, w - xDisplacementFactor, h- yDisplacementFactor);
+            //     }else{
+            //     ctx.putImageData(currentImageData, w + xDisplacementFactor, h+ yDisplacementFactor);
+            //     }
+
+            //  }
+
+            ctx.putImageData(
+              currentImageData,
+              w + xDisplacementFactor,
+              h + yDisplacementFactor
+            );
+            ctx.putImageData(replacingImageData, w, h);
+          }
+        }
+
+        const { min, max, yStart, yEnd } = focusedSection!;
+
+        this.mappedSectionedHead!.set(i, {
+          min: { xPosition: min.xPosition + xDisplacementFactor },
+          max: { xPosition: max.xPosition + xDisplacementFactor },
+          yStart: yStart + yDisplacementFactor,
+          yEnd: yEnd + yDisplacementFactor,
+        });
+      }
     }
-
+  }
 }

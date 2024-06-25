@@ -19,6 +19,7 @@
               <option value="animate">Animate</option>
               <option value="resize-or-filter">Resize or Filter</option>
             </select>
+            <button id="reset">Reset</button>
           </div>
           <div class="animate-container">
           <input type="file" name="imageInput" id="imageSelector">
@@ -39,8 +40,13 @@
 
           <div class="resize-container">
             <select id="resize-option">
-              <option value="Average-resize">Average size</option>
-              <option value="Bicubic-interpolation">Bicubic Interpolation</option>
+              <option value="Average-resize">Average size (S)</option>
+              <option value="Bicubic-interpolation">Bicubic Interpolation (B)</option>
+            </select>
+            <select id="resize-factor">
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
             </select>
             <button id="resize-button">Resize</button>
           </div>
@@ -57,7 +63,7 @@
 
         <div class="image-container">
 
-          <canvas class="canvas" height="853" width="640"></canvas>
+          <canvas class="canvas" height="0" width="0"></canvas>
 
         </div>
         

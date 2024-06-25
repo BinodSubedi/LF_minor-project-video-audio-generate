@@ -129,6 +129,15 @@ main{
     padding: 1rem;
 }
 
+.image-utilities__selector{
+  display: flex;
+  flex-direction: column;
+}
+
+.image-utilities__selector select{
+  margin-bottom: 0.5rem;
+}
+
 .animate-container{
   height: 30%;
   display: flex;
@@ -137,11 +146,23 @@ main{
 }
 
 .resize-container,.filter-container{
-  height: 14%;
+  // height: 14%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
+
+#resize-factor{
+  margin:  1rem 0;
+}
+
+.filter-container select{
+  margin-bottom: 1rem;
+}
+
+// .resize-container{
+//   height: 18%;
+// }
 
 .image-utilities div:not(:first-child){
   padding-top: 2rem;

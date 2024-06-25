@@ -33,6 +33,9 @@ export class Ball {
   center: number[];
   extra: BallInputRectExtra;
   met?:boolean = false
+  exported?:boolean = false;
+  streamArr?: Blob[] | undefined;
+  mediaRecorder?:any;
 
   constructor(input: BallInput, extra: BallInputRectExtra) {
     const { radius, max_x, min_x, max_y, min_y,center } = input;
@@ -45,9 +48,65 @@ export class Ball {
     this.extra = extra;
   }
 
-  fall(ctx: CanvasRenderingContext2D, fallpoint: BallFallEnd) {
+  fall(ctx: CanvasRenderingContext2D, fallpoint: BallFallEnd,canvas:HTMLCanvasElement) {
+
+    // let mediaRecorder;
+
     if (this.max_y >= fallpoint.yPositionLimit) {
+      
+      if(!this.exported){
+        this.exported = true;
+      this.mediaRecorder!.stop();
+      // const recordedBlob = new Blob(this.streamArr,{type:'video/webm'})
+      // console.log(this.streamArr)
+
+      // console.log(recordedBlob)
+      
+      // let link = document.createElement('a');
+      // link.href = URL.createObjectURL(recordedBlob);
+      // link.download = "ball-fall.webm";
+      // link.click();
+      // URL.revokeObjectURL(link.href);
+
+      }
+      
       return;
+    }
+
+
+    if(this.streamArr == undefined){
+      this.streamArr = [];
+
+
+      const stream = canvas.captureStream();
+      this.mediaRecorder = new MediaRecorder(stream);
+
+    }
+
+
+    this.mediaRecorder.ondataavailable = (e:any) =>{
+
+      if(e.data.size >0){
+        this.streamArr?.push(e.data);
+
+        // console.log(this.streamArr)
+
+      const recordedBlob = new Blob(this.streamArr,{type:'video/webm'})
+      let link = document.createElement('a');
+      link.href = URL.createObjectURL(recordedBlob);
+      link.download = "ball-fall.webm";
+      link.click();
+      URL.revokeObjectURL(link.href);
+
+
+      }
+
+    }
+
+    if(this.mediaRecorder.state == 'inactive'){
+
+    this.mediaRecorder?.start();
+
     }
 
     // console.log('falling')
@@ -145,16 +204,53 @@ for(let i=this.max_x; i >=this.min_x; i--){
   }
 
 
-  strikeBall(ctx:CanvasRenderingContext2D, otherBall:Ball,fallpoint:BallFallEnd){
+  strikeBall(ctx:CanvasRenderingContext2D, otherBall:Ball,fallpoint:BallFallEnd, canvas:HTMLCanvasElement){
 
     // Doing y1-y2/x2-x1 instead of y2-y1/x2-x1 because in canvas the positive y-axis is down
     // instead of up like in graph
     //Just strike with x-difference, no use of relative angle
 
-    if(fallpoint.yPositionLimit <= this.max_y || fallpoint.yPositionLimit <= otherBall.max_y){
+    if (
+      fallpoint.yPositionLimit <= this.max_y ||
+      fallpoint.yPositionLimit <= otherBall.max_y
+    ) {
       this.met = false;
+
+      if (!this.exported) {
+        this.exported = true;
+        this.mediaRecorder!.stop();
+      }
+
+
       return;
     }
+
+    if (this.streamArr == undefined) {
+      this.streamArr = [];
+
+      const stream = canvas.captureStream();
+      this.mediaRecorder = new MediaRecorder(stream);
+    }
+
+    this.mediaRecorder.ondataavailable = (e: any) => {
+      if (e.data.size > 0) {
+        this.streamArr?.push(e.data);
+
+        // console.log(this.streamArr)
+
+        const recordedBlob = new Blob(this.streamArr, { type: "video/webm" });
+        let link = document.createElement("a");
+        link.href = URL.createObjectURL(recordedBlob);
+        link.download = "strike-balls.webm";
+        link.click();
+        URL.revokeObjectURL(link.href);
+      }
+    };
+
+    if (this.mediaRecorder.state == "inactive") {
+      this.mediaRecorder?.start();
+    }
+
 
     
 

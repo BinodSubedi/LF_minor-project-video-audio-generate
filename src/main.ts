@@ -25,6 +25,10 @@ const resizeTypeSelector:HTMLSelectElement | null = document.querySelector('#res
 
 const filterSelector:HTMLSelectElement | null = document.querySelector('#filter-options')
 
+const resizeFactor:HTMLSelectElement | null = document.querySelector('#resize-factor');
+
+const resetButton:HTMLButtonElement | null = document.querySelector('#reset');
+
 const ctx = imageCanvas!.getContext("2d", { willReadFrequently: true });
 
 const imageDimensions:{imageNaturalWidth:number, imageNaturalHeight:number} = { imageNaturalWidth: 0, imageNaturalHeight: 0 };
@@ -79,9 +83,9 @@ if(animationStyleElement != null){
 
 }
 
-const rectangleArr: RectangleArrUnit[] = [];
+let rectangleArr: RectangleArrUnit[] = [];
 
-const imageInstanceCont: ImageDraw[] | null = []
+let imageInstanceCont: ImageDraw[] | null = []
 
 imageSelector?.addEventListener("change", (e: any) => {
   //   console.log("selected");
@@ -128,22 +132,28 @@ imageSelector?.addEventListener("change", (e: any) => {
           imageNaturalHeight: image.height,
           imageNaturalWidth: image.width,
         });
-        imageInstanceCont[0] = imageInstance;
+        imageInstanceCont![0] = imageInstance;
 
         resizeButton?.addEventListener("click", () => {
           if (resizeTypeSelector?.value == "Average-resize") {
-            imageInstance.averageResize(ctx!, imageCanvas!, 2);
+            imageInstance.averageResize(ctx!, imageCanvas!, parseInt(resizeFactor!.value));
           } else {
-            imageInstance.bicubicInterpolationResize(ctx!, imageCanvas!, 2);
+            let val = parseInt(resizeFactor!.value);
+            if (val == 3){
+              val=4;
+            }else if(val == 4){
+              val=6
+            }
+            imageInstance.bicubicInterpolationResize(ctx!, imageCanvas!, val);
           }
         });
 
         greenFilterButton?.addEventListener("click", () => {
           console.log("checking");
           if(filterSelector?.value == "grey"){
-          imageInstanceCont[0].greyFilter(ctx!);
+          imageInstanceCont![0].greyFilter(ctx!,imageCanvas!);
           }else{
-          imageInstanceCont[0].greenFilter(ctx!);
+          imageInstanceCont![0].greenFilter(ctx!,imageCanvas!);
           }
         });
 
@@ -217,7 +227,7 @@ imageCanvas!.addEventListener("mouseup", () => {
   }
 });
 
-const ballArr: Ball[] = [];
+let ballArr: Ball[] = [];
 
 fallBallButton?.addEventListener("click", () => {
   for(let i=0;i<rectangleLimit;i++){
@@ -257,20 +267,20 @@ const updateRectangleRenderer = () => {
       }
       // for (const ball of ballArr) {
         if(animationSelected == AnimationSelection.FallingBall){
-        ballArr[0].fall(ctx!, { yPositionLimit: imageDimensions.imageNaturalHeight });
+        ballArr[0].fall(ctx!, { yPositionLimit: imageDimensions.imageNaturalHeight }, imageCanvas!);
         }else if(animationSelected == AnimationSelection.BallStriking){
-          ballArr[0].strikeBall(ctx!,ballArr[1],{yPositionLimit:imageDimensions.imageNaturalHeight});
+          ballArr[0].strikeBall(ctx!,ballArr[1],{yPositionLimit:imageDimensions.imageNaturalHeight},imageCanvas!);
         }else if(animationSelected == AnimationSelection.MovingHand){
           if(handStatePreserver == undefined){
           handStatePreserver = rectangleArr[0].main.getHand();
           }
-          handStatePreserver?.moveHand(ctx!);
+          handStatePreserver?.moveHand(ctx!,imageCanvas!);
         }else if(animationSelected == AnimationSelection.BobbingHead){
           if(headStatePreserver == undefined){
             headStatePreserver = rectangleArr[0].main.getHead();
           }
 
-          headStatePreserver?.bobHead(ctx!);
+          headStatePreserver?.bobHead(ctx!,imageCanvas!);
 
         }
       // }
@@ -308,10 +318,16 @@ startButton?.addEventListener("click", () => {
 });
 
 
+resetButton?.addEventListener('click',()=>{
+  ballArr = [];
+  ballFallingBackRerenderer = 0;
+  rectangleNowIndex = 0;
+  rectangleArr = [];
+  imageInstanceCont = []
+  window.alert('Parameters has been reset, you may proceed without reload')
+  // ctx?.clearRect(0,0,imageDimensions.imageNaturalWidth,imageDimensions.imageNaturalHeight)
 
-
-
-
+})
 
 
 

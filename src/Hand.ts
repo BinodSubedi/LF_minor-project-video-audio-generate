@@ -27,6 +27,9 @@ export class Hand{
     yMean?:number;
     sectionedMappedHand:Map<number,HandSectionWise> | undefined;
     handMoveIter=0;
+    exported:boolean = false;
+    mediaRecorder?:any;
+    streamArr: Blob[] | undefined;
 
 
     constructor(input:HandInput){
@@ -38,58 +41,82 @@ export class Hand{
 
     }
 
-    moveHand(ctx:CanvasRenderingContext2D){
+    moveHand(ctx:CanvasRenderingContext2D,canvas:HTMLCanvasElement){
+      //last to first as we will move hand in the clock-wise direction first
+      // and we don not want any pixel override problem
 
-        //last to first as we will move hand in the clock-wise direction first
-        // and we don not want any pixel override problem
-
-        if(this.handMoveIter == 20){
-          return;
+      if (this.handMoveIter == 20) {
+        if (!this.exported) {
+          this.exported = true;
+          this.mediaRecorder!.stop();
         }
 
-        this.handMoveIter++;
+        return;
+      }
 
-        for(let i=1; i< 11; i++){
-          const focusedSection = this.sectionedMappedHand?.get(i);
 
-          //Again even in the small sections we are going from prefered edge direction[Now being closest to clock-wise direction]
+      if (this.streamArr == undefined) {
+        this.streamArr = [];
 
-          for (let w = focusedSection!.xStart; w < focusedSection!.xEnd; w++) {
-            // Could have gone from any direction but just for the sake of consistency
-            // heigh also traverse from top to bottom
+        const stream = canvas.captureStream();
+        this.mediaRecorder = new MediaRecorder(stream);
+      }
 
-            for (
-              let h = focusedSection!.min.yPosition;
-              h < focusedSection!.max.yPosition;
-              h++
-            ) {
-              const currentImageData = ctx.getImageData(w, h, 1, 1);
-              const replacingImageData = ctx.getImageData(
-                w,
-                h+1,
-                1,
-                1
-              );
+      this.mediaRecorder.ondataavailable = (e: any) => {
+        if (e.data.size > 0) {
+          this.streamArr?.push(e.data);
 
-              // we need to move the pixel in both x and y direction as to make it look like waving so,
-              // might need to check in later for improvements
+          // console.log(this.streamArr)
 
-              ctx.putImageData(currentImageData, w, h-2);
-              ctx.putImageData(replacingImageData,w,h)
+          const recordedBlob = new Blob(this.streamArr, { type: "video/webm" });
+          let link = document.createElement("a");
+          link.href = URL.createObjectURL(recordedBlob);
+          link.download = "move-hand.webm";
+          link.click();
+          URL.revokeObjectURL(link.href);
+        }
+      };
 
-            }
+      if (this.mediaRecorder.state == "inactive") {
+        this.mediaRecorder?.start();
+      }
+
+      this.handMoveIter++;
+
+      for (let i = 1; i < 11; i++) {
+        const focusedSection = this.sectionedMappedHand?.get(i);
+
+        //Again even in the small sections we are going from prefered edge direction[Now being closest to clock-wise direction]
+
+        for (let w = focusedSection!.xStart; w < focusedSection!.xEnd; w++) {
+          // Could have gone from any direction but just for the sake of consistency
+          // heigh also traverse from top to bottom
+
+          for (
+            let h = focusedSection!.min.yPosition;
+            h < focusedSection!.max.yPosition;
+            h++
+          ) {
+            const currentImageData = ctx.getImageData(w, h, 1, 1);
+            const replacingImageData = ctx.getImageData(w, h + 1, 1, 1);
+
+            // we need to move the pixel in both x and y direction as to make it look like waving so,
+            // might need to check in later for improvements
+
+            ctx.putImageData(currentImageData, w, h - 2);
+            ctx.putImageData(replacingImageData, w, h);
           }
-
-          const { min, max, xStart, xEnd } = focusedSection!;
-
-          this.sectionedMappedHand!.set(i, {
-            min: {yPosition: min.yPosition - 2},
-            max:{yPosition: max.yPosition - 2},
-            xStart: xStart,
-            xEnd: xEnd,
-          });
         }
 
+        const { min, max, xStart, xEnd } = focusedSection!;
+
+        this.sectionedMappedHand!.set(i, {
+          min: { yPosition: min.yPosition - 2 },
+          max: { yPosition: max.yPosition - 2 },
+          xStart: xStart,
+          xEnd: xEnd,
+        });
+      }
     }
 
 }

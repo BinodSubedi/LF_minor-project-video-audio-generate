@@ -174,7 +174,7 @@ export class ImageDraw {
       Math.floor(this.imageNaturalHeight/times)
 )
 
-    const imageData = new ImageData(
+    const imageData:ImageData = new ImageData(
       new Uint8ClampedArray(this.imageRBGADataArr!),
       Math.floor(this.imageNaturalWidth/times),
       Math.floor(this.imageNaturalHeight/times)
@@ -188,10 +188,26 @@ export class ImageDraw {
     ctx.clearRect(0,0,this.imageNaturalWidth +20,this.imageNaturalHeight);
     ctx.putImageData(imageData,0,0);
 
+    // const data = ctx.getImageData(0,0,this.imageNaturalWidth/times,this.imageNaturalHeight/3)
+
     this.imageNaturalHeight =Math.floor(this.imageNaturalHeight/times);
     this.imageNaturalWidth =Math.floor(this.imageNaturalWidth/times);
  
+    
+    canvas.toBlob(blob=>{
 
+    let link = document.createElement('a');
+    link.href = URL.createObjectURL(blob!);
+    link.download = "resized-small.png";
+    link.click();
+
+    URL.revokeObjectURL(link.href)
+
+    })
+
+    // let blob = new Blob([data.data], {type:'image/png'})
+
+    
   }
 
   // Resizing into larger image with upscaling following bicubic interpolation
@@ -473,32 +489,61 @@ export class ImageDraw {
     this.imageNaturalWidth =this.imageRGBDataArrBicubic![0].length / 4;
  
 
+    canvas.toBlob(blob=>{
+
+    let link = document.createElement('a');
+    link.href = URL.createObjectURL(blob!);
+    link.download = "resized-big.png";
+    link.click();
+
+    URL.revokeObjectURL(link.href)
+
+    })
+
 
   }
 
 
-  greenFilter(ctx:CanvasRenderingContext2D){
+  greenFilter(ctx:CanvasRenderingContext2D,canvas:HTMLCanvasElement){
+    // console.log(
+    //   "height,width::",
+    //   this.imageNaturalHeight,
+    //   this.imageNaturalWidth
+    // );
 
-    console.log('height,width::',this.imageNaturalHeight,this.imageNaturalWidth)
+    for (let w = 0; w < this.imageNaturalWidth; w++) {
+      for (let h = 0; h < this.imageNaturalHeight; h++) {
+        const imageDataOriginal = ctx.getImageData(w, h, 1, 1).data;
 
-    for(let w=0; w < this.imageNaturalWidth; w++){
-        for(let h=0; h< this.imageNaturalHeight; h++){
+        const manipulatedImageData = [
+          imageDataOriginal[0] * 0.299,
+          imageDataOriginal[1] * 0.587,
+          imageDataOriginal[2] * 0.114,
+          imageDataOriginal[3],
+        ];
 
-            const imageDataOriginal = ctx.getImageData(w,h, 1,1).data;
-            
-            const manipulatedImageData = [imageDataOriginal[0]*0.299, imageDataOriginal[1]*0.587,imageDataOriginal[2]*0.114,imageDataOriginal[3]];
+        const imageData = new ImageData(
+          new Uint8ClampedArray(manipulatedImageData),
+          1,
+          1
+        );
 
-            const imageData = new ImageData(new Uint8ClampedArray(manipulatedImageData), 1,1);
-
-            ctx.putImageData(imageData, w,h);
-
-        }
+        ctx.putImageData(imageData, w, h);
+      }
     }
 
+    canvas.toBlob((blob) => {
+      let link = document.createElement("a");
+      link.href = URL.createObjectURL(blob!);
+      link.download = "green-image.png";
+      link.click();
+
+      URL.revokeObjectURL(link.href);
+    });
   }
 
 
- greyFilter(ctx:CanvasRenderingContext2D){
+ greyFilter(ctx:CanvasRenderingContext2D,canvas:HTMLCanvasElement){
 
     console.log('height,width::',this.imageNaturalHeight,this.imageNaturalWidth)
 
@@ -517,6 +562,17 @@ export class ImageDraw {
 
         }
     }
+
+
+    canvas.toBlob((blob) => {
+      let link = document.createElement("a");
+      link.href = URL.createObjectURL(blob!);
+      link.download = "grey-image.png";
+      link.click();
+
+      URL.revokeObjectURL(link.href);
+    });
+
 
   }
 
